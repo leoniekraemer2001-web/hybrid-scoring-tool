@@ -3,8 +3,68 @@ import pandas as pd
 
 st.set_page_config(page_title="Hybrid-Scoring-Tool", layout="wide")
 
-st.title("🏢 **Hybrid-Scoring-Tool**")
-st.markdown("**Evidenzbasierte Homeoffice-Policy in 2 Minuten** – NWA-Methodik")
+# -------------------------------------------------------
+# Kopfbereich der App (Titel, Untertitel, Anleitung, Style)
+# -------------------------------------------------------
+
+st.markdown(
+    """
+    <style>
+    /* Titel kleiner & kompakter */
+    h1 {
+        font-size: 2.2rem !important;
+        margin-bottom: 0.2rem;
+    }
+
+    /* Untertitel leicht grau & kleiner */
+    .subtitle {
+        font-size: 1.1rem;
+        color: #555;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Abschnittsüberschriften (z. B. "Ihre Einschätzung") kleiner */
+    h2 {
+        font-size: 1.6rem !important;
+        margin-top: 2rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    /* Anleitungstext */
+    .instruction-box {
+        background-color: #f5f7fa;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        border-left: 5px solid #4a7aff;
+        margin-top: 1rem;
+        margin-bottom: 2rem;
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# Titel & Untertitel
+st.markdown("<h1>Hybrid-Scoring-Tool</h1>", unsafe_allow_html=True)
+st.markdown("<div class='subtitle'>Evidenzbasierte Homeoffice-Policy in nur 2 Minuten</div>", unsafe_allow_html=True)
+
+# Anleitung
+st.markdown(
+    """
+    <div class='instruction-box'>
+    <b>Anleitung:</b><br><br>
+    1️⃣ Bewerten Sie jedes Kriterium anhand Ihrer aktuellen Situation (Score 1–5).<br>
+    2️⃣ Die Skala darunter zeigt Ihnen die Bedeutung der einzelnen Scores.<br>
+    3️⃣ Am Ende erhalten Sie einen Gesamtscore und eine konkrete Homeoffice-Empfehlung.<br>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+#st.title("**Hybrid-Scoring-Tool**")
+#st.markdown("**Evidenzbasierte Homeoffice-Policy in 2 Minuten**")
 
 # Gewichte und Reihenfolge (unverändert)
 gewichte = {
@@ -22,64 +82,64 @@ gewichte = {
 
 # Self-Assessment Skalen
 beschreibungen = {
-    "Pendelaufwand": """Score 1: <5 km Ø Pendelstrecke
-Score 2: 5-12 km Ø
-Score 3: 12-22 km Ø
-Score 4: 22-35 km Ø
+    "Pendelaufwand": """Score 1: <5 km Ø Pendelstrecke \\
+ Score 2: 5-12 km Ø \\
+Score 3: 12-22 km Ø \\
+Score 4: 22-35 km Ø \\
 Score 5: >35 km Ø""",
     
-    "Büroflächenreduktion": """Score 1: Einzelbüros, 100% Auslastung
-Score 2: Grundlegende Hybrid-Struktur (<30% Hotdesking)
-Score 3: Moderate Adaptivität (30-50% Hotdesking)
-Score 4: Hohe Adaptivität (50-70% Hotdesking, Activity-Based)
+    "Büroflächenreduktion": """Score 1: Einzelbüros, 100% Auslastung \\
+Score 2: Grundlegende Hybrid-Struktur (<30% Hotdesking) \\
+Score 3: Moderate Adaptivität (30-50% Hotdesking) \\
+Score 4: Hohe Adaptivität (50-70% Hotdesking, Activity-Based)\\
 Score 5: Vollständig adaptiv (>70% Hotdesking, Desk-Sharing)""",
     
-    "CO₂-Einsparung": """Score 1: <10 kg CO₂e Einsparung/FTE/Tag
-Score 2: 10-25 kg CO₂e Einsparung
-Score 3: 25-40 kg CO₂e Einsparung (DE-Durchschnitt)
-Score 4: 40-60 kg CO₂e Einsparung
+    "CO₂-Einsparung": """Score 1: <10 kg CO₂e Einsparung/FTE/Tag \\
+Score 2: 10-25 kg CO₂e Einsparung \\
+Score 3: 25-40 kg CO₂e Einsparung (DE-Durchschnitt) \\
+Score 4: 40-60 kg CO₂e Einsparung \\
 Score 5: >60 kg CO₂e Einsparung""",
     
-    "Work-Life-Balance": """Score 1: Deutlich schlechter, starke Grenzverwischung
-Score 2: Eher negativ, etwas mehr Stress
-Score 3: Ausgewogen oder leicht besser als Büro (typisch)
-Score 4: Deutlich besser, gute Zeitgewinne
+    "Work-Life-Balance": """Score 1: Deutlich schlechter, starke Grenzverwischung \\
+Score 2: Eher negativ, etwas mehr Stress \\
+Score 3: Ausgewogen oder leicht besser als Büro (typisch) \\
+Score 4: Deutlich besser, gute Zeitgewinne \\
 Score 5: Sehr hoch, flexible Zeitgestaltung""",
     
-    "Team-/Führungskultur": """Score 1: Keine Remote-Erfahrung, Micromanagement
-Score 2: Erste Erfahrung (<1 Jahr), skeptische Manager
-Score 3: 1-3 Jahre Erfahrung, Video-Meetings Standard
-Score 4: Reife Hybrid-Kultur (>3 Jahre), asynchrone Arbeit
+    "Team-/Führungskultur": """Score 1: Keine Remote-Erfahrung, Micromanagement \\
+Score 2: Erste Erfahrung (<1 Jahr), skeptische Manager \\
+Score 3: 1-3 Jahre Erfahrung, Video-Meetings Standard \\
+Score 4: Reife Hybrid-Kultur (>3 Jahre), asynchrone Arbeit \\
 Score 5: Weltklasse Remote-First (GitLab-Style)""",
     
-    "Mitarbeiterakzeptanz": """Score 1: <10% Mitarbeiter nutzen HO
-Score 2: 11-20% nutzen HO
-Score 3: 21-45% nutzen HO (DE-Durchschnitt)
-Score 4: 46-75% nutzen HO
+    "Mitarbeiterakzeptanz": """Score 1: <10% Mitarbeiter nutzen HO \\
+Score 2: 11-20% nutzen HO \\
+Score 3: 21-45% nutzen HO (DE-Durchschnitt) \\
+Score 4: 46-75% nutzen HO \\
 Score 5: >75% nutzen HO""",
     
-    "Aufgaben-/Persönlichkeitsfit": """Score 1: Stark team-/ortsgetrieben, niedrige Selbstdisziplin
-Score 2: Teilweise ortsabhängig, begrenzte Selbstorganisation
-Score 3: Mischprofil, durchschnittlich organisiert (typisch)
-Score 4: Autonome Aufgaben, gut strukturiert
+    "Aufgaben-/Persönlichkeitsfit": """Score 1: Stark team-/ortsgetrieben, niedrige Selbstdisziplin \\
+Score 2: Teilweise ortsabhängig, begrenzte Selbstorganisation \\
+Score 3: Mischprofil, durchschnittlich organisiert (typisch) \\
+Score 4: Autonome Aufgaben, gut strukturiert \\
 Score 5: Wissensorientiert, hohe Gewissenhaftigkeit""",
     
-    "Produktivitätseffekte": """Score 1: Deutlicher Rückgang < -10%
-Score 2: Leichter Rückgang -10% bis 0%
-Score 3: 0-10% (DE-Durchschnitt, neutral)
-Score 4: +10-20% Produktivität
+    "Produktivitätseffekte": """Score 1: Deutlicher Rückgang < -10% \\
+Score 2: Leichter Rückgang -10% bis 0% \\
+Score 3: 0-10% (DE-Durchschnitt, neutral) \\
+Score 4: +10-20% Produktivität \\
 Score 5: >+20% Produktivität""",
     
-    "Präsenznotwendigkeit": """Score 1: >70% Face-to-Face oder physische Aufgaben
-Score 2: 50-70% Präsenz erforderlich
-Score 3: 30-50% Präsenz erforderlich (typisch)
-Score 4: 10-30% Präsenz erforderlich
+    "Präsenznotwendigkeit": """Score 1: >70% Face-to-Face oder physische Aufgaben \\
+Score 2: 50-70% Präsenz erforderlich \\
+Score 3: 30-50% Präsenz erforderlich (typisch) \\
+Score 4: 10-30% Präsenz erforderlich \\
 Score 5: <10% Präsenz erforderlich""",
     
-    "IT-Infrastruktur": """Score 1: Kein VPN, schlechte Internet, keine Tools
-Score 2: Basis-VPN, Email + File-Sharing
-Score 3: Gutes VPN, MS Teams, stabiles Internet
-Score 4: Enterprise VPN, Cloud-Tools, Cybersecurity
+    "IT-Infrastruktur": """Score 1: Kein VPN, schlechte Internet, keine Tools \\
+Score 2: Basis-VPN, Email + File-Sharing \\
+Score 3: Gutes VPN, MS Teams, stabiles Internet \\
+Score 4: Enterprise VPN, Cloud-Tools, Cybersecurity \\
 Score 5: Weltklasse IT (Zero-Trust, Global Load-Balancing)"""
 }
 
@@ -90,21 +150,14 @@ def get_empfehlung(score):
     elif score < 4.2: return "3 Tage\\n(Ausgereift)"
     else: return "4-5 Tage\\n(Remote-First)"
 
-# Sidebar
-st.sidebar.header("⚙️ Einstellungen")
-gewicht_anpassen = st.sidebar.checkbox("Gewichte ändern", False)
-if gewicht_anpassen:
-    for k in gewichte:
-        gewichte[k] = st.sidebar.slider(k[:15], 0.0, 0.5, gewichte[k], 0.01)
-
 # Scores: VERTIKAL untereinander (Slider + Skala nebeneinander)
-st.header("📊 Ihre Einschätzung (Score 1-5)")
-st.markdown("*Skala immer sichtbar neben Slider*")
+#st.header("Ihre Einschätzung (Score 1-5)")
+#st.markdown("*Skala immer sichtbar neben Slider*")
 scores = {}
 gesamtscore = 0
 
 for kriterium, gewicht in gewichte.items():
-    st.markdown(f"### {kriterium} ({gewicht:.0%})")
+    st.markdown(f"### {kriterium}")
     col1, col2 = st.columns([1, 3])
     with col1:
         score = st.slider(kriterium, 1, 5, 3, key=f"{kriterium}_score")
@@ -115,18 +168,18 @@ for kriterium, gewicht in gewichte.items():
     st.markdown("---")  # Trennlinie untereinander
 
 # Ergebnisse
-st.header("🎯 **Ihr Ergebnis**")
+st.header("**Ihr Ergebnis**")
 col1, col2, col3 = st.columns(3)
 col1.metric("Gesamtscore", f"{gesamtscore:.2f}/5.0")
 col2.metric("Policy-Empfehlung", get_empfehlung(gesamtscore))
 col3.metric("vs. DE-Durchschnitt", "3.0", f"{gesamtscore-3.0:+.1f}")
 
 # Breakdown-Tabelle
-st.subheader("📈 Detail-Analyse")
+st.subheader("Detail-Analyse")
 df_data = [{"Kriterium": k, "Score": scores[k], "Gewicht": f"{gewichte[k]:.0%}", "Teilwert": f"{scores[k]*gewichte[k]:.2f}"} for k in scores]
 df = pd.DataFrame(df_data)
 st.dataframe(df, use_container_width=True)
 
 st.markdown("---")
-st.markdown("*DHBW-Projekt | NWA-basiert | © 2026*")
+st.markdown("*DHBW-Projekt |P.Gizewski, L. Krämer, L. Müller | © 2026*")
 
