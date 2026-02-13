@@ -66,7 +66,7 @@ st.markdown(
 # Gewichte und Reihenfolge
 gewichte = {
     "Pendelaufwand": 0.2,
-    "Büroflächenreduktion": 0.55,
+    "Büroflächenreduktion": 0.055,
     "CO₂-Einsparung": 0.1025,
     "Work-Life-Balance": 0.1525,
     "Team-/Führungskultur": 0.1175,
@@ -167,7 +167,6 @@ st.header("**Ihr Ergebnis**")
 col1, col2, col3 = st.columns(3)
 col1.metric("Gesamtscore", f"{gesamtscore:.2f}/5.0")
 col2.metric("Policy-Empfehlung", get_empfehlung(gesamtscore))
-col3.metric("vs. DE-Durchschnitt", "3.0", f"{gesamtscore-3.0:+.1f}")
 
 # ---- Spezifische Warnungen zu IT-Infrastruktur / Präsenznotwendigkeit ----
 # WICHTIG: Dieser Block muss NACH der for-Schleife stehen, damit 'scores' gefüllt ist.
