@@ -56,7 +56,7 @@ st.markdown(
     <div class='instruction-box'>
     <b>Anleitung:</b><br>
     1️⃣ Bewerten Sie jedes Kriterium anhand Ihrer aktuellen Situation (Score 1–5).<br>
-    2️⃣ Die Bedeutung der Scores von 1-5 werden unter jeder Skala erläutert. Falls Sie ein Kriterium nicht beurteilen können, empfehlen wir den Score 3 auszuwählen. <br>
+    2️⃣ Die Bedeutung der Scores von 1-5 werden bei jeder Skala erläutert. Falls Sie ein Kriterium nicht beurteilen können, empfehlen wir den Score 3 auszuwählen. <br>
     3️⃣ Am Ende erhalten Sie einen Gesamtscore und eine konkrete Homeoffice-Empfehlung.<br>
     </div>
     """,
@@ -169,12 +169,9 @@ col1.metric("Gesamtscore", f"{gesamtscore:.2f}/5.0")
 col2.metric("Policy-Empfehlung", get_empfehlung(gesamtscore))
 
 # ---- Spezifische Warnungen zu IT-Infrastruktur / Präsenznotwendigkeit ----
-# WICHTIG: Dieser Block muss NACH der for-Schleife stehen, damit 'scores' gefüllt ist.
-
 it_score = scores.get("IT-Infrastruktur")
 praesenz_score = scores.get("Präsenznotwendigkeit")
 
-# Nur wenn die Keys existieren (Schreibweise prüfen!) und der Score < 3 ist
 if it_score is not None and it_score < 3:
     st.warning(
         f"Da Sie beim Kriterium IT-Infrastruktur nur einen Score von {it_score} ausgewählt haben, "
@@ -188,6 +185,90 @@ if praesenz_score is not None and praesenz_score < 3:
         "sollten Sie zunächst prüfen, inwiefern Präsenzanforderungen organisatorisch reduziert, "
         "delegiert oder digitalisiert werden können, bevor eine hohe Homeoffice-Quote umgesetzt wird."
     )
+
+
+# -------------------------------------------------------
+# Handlungsempfehlungen (bei Scores 1–2)
+# -------------------------------------------------------
+
+st.subheader("Handlungsempfehlungen")
+
+empfehlungen = {
+    "Büroflächenreduktion": [
+        "Einführung eines Pilotprojekts mit 10–20 % Desk-Sharing testen.",
+        "Buchungssystem oder einfache Desksharing-Regeln einführen.",
+        "Meetingräume flexibilisieren → Fokusräume schaffen, Doppelbelegungen reduzieren.",
+        "Kulturwandel begleiten: Change-Kommunikation, Workshops."
+    ],
+
+    "CO₂-Einsparung": [
+        "Anreize schaffen: JobRad, ÖPNV-Zuschuss, Ladeinfrastruktur.",
+        "Bürobelegung optimieren, um Heiz-/Stromkosten zu reduzieren.",
+        "Gebäudebetrieb an Belegung koppeln (z. B. Heiz-/Lichtsteuerung über Buchungssystem)."
+    ],
+
+    "Team-/Führungskultur": [
+        "Führungskräftetraining zum Thema „Führen auf Distanz“.",
+        "Erwartungstransparenz: Output statt Präsenz messen.",
+        "Peer-Coaching mit Teams mit höherer Remote-Reife.",
+        "Team-Working-Agreements erstellen (Kommunikationsregeln, Kernzeiten, Meetingformen)."
+    ],
+
+    "Mitarbeiterakzeptanz": [
+        "Ursachenanalyse: anonyme Umfrage oder Workshop.",
+        "Einstieg über 1–2 freiwillige Homeoffice-Tage.",
+        "Erfolgsgeschichten („Best Practices“) kommunizieren.",
+        "HO-Ausstattungspaket bereitstellen (Monitor, Headset, ergonomischer Stuhl)."
+    ],
+
+    "Aufgaben-/Persönlichkeitsfit": [
+        "Aufgabeninventur: Welche Tätigkeiten könnten remote funktionieren?",
+        "Schulungen in Selbstorganisation & Priorisierung.",
+        "Einführung klarer täglicher Strukturen (Check-in, Tagesziele).",
+        "Hybrid-Work-Splitting: Fokus-Aufgaben remote, Abstimmung im Büro.",
+        "Prozesse digitalisieren (Dokumente, Freigaben, Tools)."
+    ],
+
+    "Produktivitätseffekte": [
+        "Ursachen messen: Ablenkung? Technik? Kommunikation?",
+        "Meetingstruktur überarbeiten (weniger Meetings, mehr Asynchronität).",
+        "Fokusphasen einführen (z. B. „No-Meeting-Wednesday“).",
+        "Bessere Workflows definieren, SOPs erstellen."
+    ],
+
+    "Präsenznotwendigkeit": [
+        "Tätigkeitsanalyse: Was muss physisch sein, was nicht?",
+        "Prozesse digitalisieren (Dokumentation, Freigaben).",
+        "Aufgabenrotation prüfen, um Homeoffice fair zu verteilen.",
+        "Remote-Fokus an Tagen mit weniger Kundenkontakt einführen.",
+        "Hybrid-Tage definieren (z. B. 1 Tag/Woche Remote für dokumentarische Tätigkeiten)."
+    ],
+
+    "IT-Infrastruktur": [
+        "Sofortmaßnahmen: VPN-Stabilität erhöhen, Hardware upgraden.",
+        "Professionelle Collaboration-Tools einführen (M365, Notion, Asana).",
+        "IT‑Support für Remote-Setups verbessern.",
+        "Schulungen zur Tool-Nutzung (Teams, OneDrive, Shared Channels)."
+    ],
+
+    "Work-Life-Balance": [
+        "Klare Regeln zur Erreichbarkeit einführen (z. B. keine Mails nach 18 Uhr).",
+        "Schulungen zu Selbstorganisation & Pausenmanagement anbieten.",
+        "Digitale Pausen‑Reminder nutzen (Teams/Outlook)."
+    ]
+}
+
+kritische_kriterien = [k for k, s in scores.items() if s <= 2]
+
+if len(kritische_kriterien) == 0:
+    st.success("Keine kritischen Bereiche – sehr gut! Für alle Kriterien liegen solide oder gute Werte vor.")
+else:
+    for kriterium in kritische_kriterien:
+        st.markdown(f"### {kriterium}")
+        for punkt in empfehlungen.get(kriterium, []):
+            st.markdown(f"- {punkt}")
+        st.markdown("---")
+
 
 # Breakdown-Tabelle
 st.subheader("Detail-Analyse")
@@ -204,4 +285,4 @@ df = pd.DataFrame(df_data)
 st.dataframe(df, use_container_width=True)
 
 st.markdown("---")
-st.markdown("*DHBW Lörrach |P.Gizewski, L. Krämer, L. Müller | © 2026*")
+st.markdown("*DHBW Lörrach | P.Gizewski, L. Krämer, L. Müller | © 2026*")
