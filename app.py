@@ -6,7 +6,6 @@ st.set_page_config(page_title="Hybrid-Scoring-Tool", layout="wide")
 # -------------------------------------------------------
 # Kopfbereich der App (Titel, Untertitel, Anleitung, Style)
 # -------------------------------------------------------
-
 st.markdown(
     """
     <style>
@@ -79,65 +78,85 @@ gewichte = {
 
 # Self-Assessment Skalen
 beschreibungen = {
-    "Pendelaufwand": """Score 1: <5 km Ø Pendelstrecke \
- Score 2: 5-12 km Ø Pendelstrecke \
-Score 3: 12-22 km Ø Pendelstrecke \
-Score 4: 22-35 km Ø Pendelstrecke \
-Score 5: >35 km Ø Pendelstrecke""",
-    
-    "Büroflächenreduktion": """Score 1: Einzelbüros, 100% Auslastung \
-Score 2: Grundlegende Hybrid-Struktur (<30% Hotdesking) \
-Score 3: Moderate Adaptivität (30-50% Hotdesking) \
-Score 4: Hohe Adaptivität (50-70% Hotdesking, Activity-Based)\
-Score 5: Vollständig adaptiv (>70% Hotdesking, Desk-Sharing)""",
-    
-    "CO₂-Einsparung": """Score 1: <10 kg CO₂e Einsparung/FTE/Tag \
-Score 2: 10-25 kg CO₂e Einsparung/FTE/Tag \
-Score 3: 25-40 kg CO₂e Einsparung/FTE/Tag (DE-Durchschnitt) \
-Score 4: 40-60 kg CO₂e Einsparung/FTE/Tag \
-Score 5: >60 kg CO₂e Einsparung/FTE/Tag""",
-    
-    "Work-Life-Balance": """Score 1: Deutlich schlechter, starke Grenzverwischung \
-Score 2: Eher negativ, etwas mehr Stress \
-Score 3: Ausgewogen oder leicht besser als Büro (typisch) \
-Score 4: Deutlich besser, gute Zeitgewinne \
-Score 5: Sehr hoch, flexible Zeitgestaltung""",
-    
-    "Team-/Führungskultur": """Score 1: Keine Remote-Erfahrung, Micromanagement \
-Score 2: Erste Erfahrung (<1 Jahr), skeptische Manager \
-Score 3: 1-3 Jahre Erfahrung, Video-Meetings Standard \
-Score 4: Reife Hybrid-Kultur (>3 Jahre), asynchrone Arbeit \
-Score 5: Weltklasse Remote-First (GitLab-Style)""",
-    
-    "Mitarbeiterakzeptanz": """Score 1: <10% Mitarbeiter nutzen HO \
-Score 2: 11-20% Mitarbeiter nutzen HO \
-Score 3: 21-45% Mitarbeiter nutzen HO (DE-Durchschnitt) \
-Score 4: 46-75% Mitarbeiter nutzen HO \
-Score 5: >75% Mitarbeiter nutzen HO""",
-    
-    "Aufgaben-/Persönlichkeitsfit": """Score 1: Stark team-/ortsgetrieben, niedrige Selbstdisziplin \
-Score 2: Teilweise ortsabhängig, begrenzte Selbstorganisation \
-Score 3: Mischprofil, durchschnittlich organisiert (typisch) \
-Score 4: Autonome Aufgaben, gut strukturiert \
-Score 5: Wissensorientiert, hohe Gewissenhaftigkeit""",
-    
-    "Produktivitätseffekte": """Score 1: Deutlicher Rückgang < -10% \
-Score 2: Leichter Rückgang -10% bis 0% \
-Score 3: 0-10% (DE-Durchschnitt, neutral) \
-Score 4: +10-20% Produktivität \
-Score 5: >+20% Produktivität""",
-    
-    "Präsenznotwendigkeit": """Score 1: >70% Face-to-Face oder physische Aufgaben \
-Score 2: 50-70% Präsenz erforderlich \
-Score 3: 30-50% Präsenz erforderlich (typisch) \
-Score 4: 10-30% Präsenz erforderlich \
-Score 5: <10% Präsenz erforderlich""",
-    
-    "IT-Infrastruktur": """Score 1: Kein VPN, schlechte Internet, keine Tools \
-Score 2: Basis-VPN, Email + File-Sharing \
-Score 3: Gutes VPN, MS Teams, stabiles Internet \
-Score 4: Enterprise VPN, Cloud-Tools, Cybersecurity \
-Score 5: Weltklasse IT (Zero-Trust, Global Load-Balancing)"""
+    "Pendelaufwand": """
+Score 1: <5 km Ø Pendelstrecke<br>
+Score 2: 5–12 km Ø Pendelstrecke<br>
+Score 3: 12–22 km Ø Pendelstrecke<br>
+Score 4: 22–35 km Ø Pendelstrecke<br>
+Score 5: >35 km Ø Pendelstrecke
+""",
+
+    "Büroflächenreduktion": """
+Score 1: Einzelbüros, 100% Auslastung<br>
+Score 2: Grundlegende Hybrid-Struktur (<30% Hotdesking)<br>
+Score 3: Moderate Adaptivität (30–50% Hotdesking)<br>
+Score 4: Hohe Adaptivität (50–70% Hotdesking, Activity-Based)<br>
+Score 5: Vollständig adaptiv (>70% Hotdesking, Desk-Sharing)
+""",
+
+    "CO₂-Einsparung": """
+Score 1: <10 kg CO₂e Einsparung/FTE/Tag<br>
+Score 2: 10–25 kg CO₂e Einsparung/FTE/Tag<br>
+Score 3: 25–40 kg CO₂e Einsparung/FTE/Tag (DE-Durchschnitt)<br>
+Score 4: 40–60 kg CO₂e Einsparung/FTE/Tag<br>
+Score 5: >60 kg CO₂e Einsparung/FTE/Tag
+""",
+
+    "Work-Life-Balance": """
+Score 1: Deutlich schlechter, starke Grenzverwischung<br>
+Score 2: Eher negativ, etwas mehr Stress<br>
+Score 3: Ausgewogen oder leicht besser (typisch)<br>
+Score 4: Deutlich besser, gute Zeitgewinne<br>
+Score 5: Sehr hoch, flexible Zeitgestaltung
+""",
+
+    "Team-/Führungskultur": """
+Score 1: Keine Remote-Erfahrung, Micromanagement<br>
+Score 2: Erste Erfahrung (<1 Jahr), skeptische Manager<br>
+Score 3: 1–3 Jahre Erfahrung, Video-Meetings Standard<br>
+Score 4: Reife Hybrid-Kultur (>3 Jahre), asynchrone Arbeit<br>
+Score 5: Remote-First Best Practice (GitLab-Style)
+""",
+
+    "Mitarbeiterakzeptanz": """
+Score 1: <10% nutzen Homeoffice<br>
+Score 2: 11–20% nutzen Homeoffice<br>
+Score 3: 21–45% nutzen Homeoffice (DE-Durchschnitt)<br>
+Score 4: 46–75% nutzen Homeoffice<br>
+Score 5: >75% nutzen Homeoffice
+""",
+
+    "Aufgaben-/Persönlichkeitsfit": """
+Score 1: Stark team-/ortsgebunden, geringe Selbstdisziplin<br>
+Score 2: Teilweise ortsabhängig, begrenzte Selbstorganisation<br>
+Score 3: Mischprofil, durchschnittlich organisiert<br>
+Score 4: Autonome Aufgaben, gute Struktur<br>
+Score 5: Wissensorientiert, hohe Gewissenhaftigkeit
+""",
+
+    "Produktivitätseffekte": """
+Score 1: Deutlicher Rückgang (<–10%)<br>
+Score 2: Leichter Rückgang (–10% bis 0%)<br>
+Score 3: 0–10% (DE-Durchschnitt, neutral)<br>
+Score 4: +10–20% Produktivität<br>
+Score 5: >+20% Produktivität
+""",
+
+    "Präsenznotwendigkeit": """
+Score 1: >70% Face-to-Face oder physische Aufgaben<br>
+Score 2: 50–70% Präsenz nötig<br>
+Score 3: 30–50% Präsenz nötig (typisch)<br>
+Score 4: 10–30% Präsenz nötig<br>
+Score 5: <10% Präsenz nötig
+""",
+
+    "IT-Infrastruktur": """
+Score 1: Kein VPN, instabiles Internet, kaum Tools<br>
+Score 2: Basis-VPN, E-Mail & File-Sharing<br>
+Score 3: Stabiles VPN, MS Teams, gutes Internet<br>
+Score 4: Enterprise VPN, Cloud-Tools, gute Security<br>
+Score 5: Zero-Trust, Enterprise Security, Global Load-Balancing
+"""
 }
 
 # Mapping
@@ -157,7 +176,7 @@ for kriterium, gewicht in gewichte.items():
     with col1:
         score = st.slider(kriterium, 1, 5, 3, key=f"{kriterium}_score")
     with col2:
-        st.markdown(f"{beschreibungen[kriterium]}")
+        st.markdown(beschreibungen[kriterium], unsafe_allow_html=True)
     scores[kriterium] = score
     gesamtscore += score * gewicht
     st.markdown("---")
