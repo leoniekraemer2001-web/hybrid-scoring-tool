@@ -55,8 +55,9 @@ st.markdown(
     <div class='instruction-box'>
     <b>Anleitung:</b><br>
     1️⃣ Bewerten Sie jedes Kriterium anhand Ihrer aktuellen Situation (Score 1–5).<br>
-    2️⃣ Die Bedeutung der Scores von 1-5 werden bei jeder Skala erläutert. Falls Sie ein Kriterium nicht beurteilen können, empfehlen wir den Score 3 auszuwählen. <br>
+    2️⃣ Die Bedeutung der Scores von 1-5 werden bei jeder Skala erläutert. Falls Sie ein Kriterium nicht beurteilen können, empfehlen wir den Score 3 (Deutscher Durchschnitt) auszuwählen. <br>
     3️⃣ Am Ende erhalten Sie eine konkrete Homeoffice-Empfehlung.<br>
+    Je näher der Wert an 1 liegt, desto ungeeigneter ist die Tätigkeit für Homeoffice. Je näher der Wert an 5 liegt, desto besser eignet sich die Tätigkeit für Homeoffice.
     </div>
     """,
     unsafe_allow_html=True
