@@ -22,7 +22,7 @@ st.markdown(
         margin-bottom: 1.5rem;
     }
 
-    /* Abschnittsüberschriften (z. B. "Ihre Einschätzung") kleiner */
+    /* Abschnittsüberschriften */
     h2 {
         font-size: 1.6rem !important;
         margin-top: 2rem !important;
@@ -57,13 +57,12 @@ st.markdown(
     1️⃣ Bewerten Sie jedes Kriterium anhand Ihrer aktuellen Situation (Score 1–5).<br>
     2️⃣ Die Bedeutung der Scores von 1-5 werden bei jeder Skala erläutert. Falls Sie ein Kriterium nicht beurteilen können, empfehlen wir den Score 3 (Deutscher Durchschnitt) auszuwählen. <br>
     3️⃣ Am Ende erhalten Sie eine konkrete Homeoffice-Empfehlung.<br>
-    Je näher der Wert an 1 liegt, desto ungeeigneter ist die Tätigkeit für Homeoffice. Je näher der Wert an 5 liegt, desto besser eignet sich die Tätigkeit für Homeoffice.
     </div>
     """,
     unsafe_allow_html=True
 )
 
-# Gewichte und Reihenfolge
+# Gewichte
 gewichte = {
     "Pendelaufwand": 0.2,
     "Büroflächenreduktion": 0.055,
@@ -77,6 +76,20 @@ gewichte = {
     "IT-Infrastruktur": 0.05
 }
 
+# Neue Fragen pro Kriterium
+fragen = {
+    "Pendelaufwand": "Wie weit pendelt Ihr Team durchschnittlich (einfache Strecke)?",
+    "Büroflächenreduktion": "Wie stark ist Ihr Bereich bereits auf flexible Arbeitsplatznutzung ausgerichtet?",
+    "CO₂-Einsparung": "Wie groß ist der realistische CO₂‑Einsparungseffekt pro Mitarbeitendem (durch weniger Pendeln & Büropräsenz)?",
+    "Work-Life-Balance": "Wie wirkt sich hybrides/remote Arbeiten auf die Work‑Life‑Balance Ihres Teams aus?",
+    "Team-/Führungskultur": "Wie reif ist Ihr Team im Umgang mit hybrider Zusammenarbeit (Vertrauen, Kommunikation, Selbstorganisation)?",
+    "Mitarbeiterakzeptanz": "Wie viele Ihrer Mitarbeitenden nutzen Homeoffice regelmäßig bzw. stehen dem positiv gegenüber?",
+    "Aufgaben-/Persönlichkeitsfit": "Wie gut eignen sich Aufgaben & Arbeitsweisen Ihres Teams für selbstständiges, ortsunabhängiges Arbeiten?",
+    "Produktivitätseffekte": "Wie hat sich die Produktivität Ihres Teams durch hybrides/remote Arbeiten verändert?",
+    "Präsenznotwendigkeit": "Wie viel Prozent der Tätigkeiten erfordern zwingend physische Anwesenheit vor Ort?",
+    "IT-Infrastruktur": "Wie stabil, sicher & leistungsfähig ist die digitale Arbeitsumgebung Ihres Teams?"
+}
+
 # Self-Assessment Skalen
 beschreibungen = {
     "Pendelaufwand": """
@@ -86,7 +99,6 @@ Score 3: 12–22 km Ø Pendelstrecke<br>
 Score 4: 22–35 km Ø Pendelstrecke<br>
 Score 5: >35 km Ø Pendelstrecke
 """,
-
     "Büroflächenreduktion": """
 Score 1: Einzelbüros, 100% Auslastung<br>
 Score 2: Grundlegende Hybrid-Struktur (<30% Hotdesking)<br>
@@ -94,7 +106,6 @@ Score 3: Moderate Adaptivität (30–50% Hotdesking)<br>
 Score 4: Hohe Adaptivität (50–70% Hotdesking, Activity-Based)<br>
 Score 5: Vollständig adaptiv (>70% Hotdesking, Desk-Sharing)
 """,
-
     "CO₂-Einsparung": """
 Score 1: <10 kg CO₂e Einsparung/FTE/Tag<br>
 Score 2: 10–25 kg CO₂e Einsparung/FTE/Tag<br>
@@ -102,7 +113,6 @@ Score 3: 25–40 kg CO₂e Einsparung/FTE/Tag (DE-Durchschnitt)<br>
 Score 4: 40–60 kg CO₂e Einsparung/FTE/Tag<br>
 Score 5: >60 kg CO₂e Einsparung/FTE/Tag
 """,
-
     "Work-Life-Balance": """
 Score 1: Deutlich schlechter, starke Grenzverwischung<br>
 Score 2: Eher negativ, etwas mehr Stress<br>
@@ -110,7 +120,6 @@ Score 3: Ausgewogen oder leicht besser (typisch)<br>
 Score 4: Deutlich besser, gute Zeitgewinne<br>
 Score 5: Sehr hoch, flexible Zeitgestaltung
 """,
-
     "Team-/Führungskultur": """
 Score 1: Keine Remote-Erfahrung, Micromanagement<br>
 Score 2: Erste Erfahrung (<1 Jahr), skeptische Manager<br>
@@ -118,7 +127,6 @@ Score 3: 1–3 Jahre Erfahrung, Video-Meetings Standard<br>
 Score 4: Reife Hybrid-Kultur (>3 Jahre), asynchrone Arbeit<br>
 Score 5: Remote-First Best Practice (GitLab-Style)
 """,
-
     "Mitarbeiterakzeptanz": """
 Score 1: <10% nutzen Homeoffice<br>
 Score 2: 11–20% nutzen Homeoffice<br>
@@ -126,7 +134,6 @@ Score 3: 21–45% nutzen Homeoffice (DE-Durchschnitt)<br>
 Score 4: 46–75% nutzen Homeoffice<br>
 Score 5: >75% nutzen Homeoffice
 """,
-
     "Aufgaben-/Persönlichkeitsfit": """
 Score 1: Stark team-/ortsgebunden, geringe Selbstdisziplin<br>
 Score 2: Teilweise ortsabhängig, begrenzte Selbstorganisation<br>
@@ -134,7 +141,6 @@ Score 3: Mischprofil, durchschnittlich organisiert<br>
 Score 4: Autonome Aufgaben, gute Struktur<br>
 Score 5: Wissensorientiert, hohe Gewissenhaftigkeit
 """,
-
     "Produktivitätseffekte": """
 Score 1: Deutlicher Rückgang (<–10%)<br>
 Score 2: Leichter Rückgang (–10% bis 0%)<br>
@@ -142,7 +148,6 @@ Score 3: 0–10% (DE-Durchschnitt, neutral)<br>
 Score 4: +10–20% Produktivität<br>
 Score 5: >+20% Produktivität
 """,
-
     "Präsenznotwendigkeit": """
 Score 1: >70% Face-to-Face oder physische Aufgaben<br>
 Score 2: 50–70% Präsenz nötig<br>
@@ -150,7 +155,6 @@ Score 3: 30–50% Präsenz nötig (typisch)<br>
 Score 4: 10–30% Präsenz nötig<br>
 Score 5: <10% Präsenz nötig
 """,
-
     "IT-Infrastruktur": """
 Score 1: Kein VPN, instabiles Internet, kaum Tools<br>
 Score 2: Basis-VPN, E-Mail & File-Sharing<br>
@@ -173,11 +177,21 @@ gesamtscore = 0
 
 for kriterium, gewicht in gewichte.items():
     st.markdown(f"### {kriterium}")
+    st.markdown(f"**Frage:** {fragen[kriterium]}")
+
     col1, col2 = st.columns([1, 3])
     with col1:
-        score = st.slider(kriterium, 1, 5, 3, key=f"{kriterium}_score")
+        # Label entfernen → nur Slider ohne erneute Kriteriumsüberschrift
+        score = st.slider(
+            label=" ", 
+            min_value=1, 
+            max_value=5, 
+            value=3, 
+            key=f"{kriterium}_score"
+        )
     with col2:
         st.markdown(beschreibungen[kriterium], unsafe_allow_html=True)
+
     scores[kriterium] = score
     gesamtscore += score * gewicht
     st.markdown("---")
@@ -188,7 +202,7 @@ col1, col2, col3 = st.columns(3)
 col1.metric("Gesamtscore", f"{gesamtscore:.2f}/5.0")
 col2.metric("Policy-Empfehlung", get_empfehlung(gesamtscore))
 
-# Spezifische Warnungen zu IT-Infrastruktur / Präsenznotwendigkeit
+# Spezifische Warnungen
 it_score = scores.get("IT-Infrastruktur")
 praesenz_score = scores.get("Präsenznotwendigkeit")
 
@@ -196,84 +210,74 @@ if it_score is not None and it_score < 3:
     st.warning(
         f"⚠️ Da Sie beim Kriterium **IT-Infrastruktur** nur einen Score von {it_score} ausgewählt haben, "
         "ist die empfohlene Anzahl an Homeoffice-Tagen nur dann sinnvoll, wenn die technische "
-        "Infrastruktur (VPN, Bandbreite, Kollaborationstools, Support) zuvor ausreichend ausgebaut wird."
+        "Infrastruktur ausreichend ausgebaut wird."
     )
 
 if praesenz_score is not None and praesenz_score < 3:
     st.warning(
         f"⚠️ Da Sie beim Kriterium **Präsenznotwendigkeit** nur einen Score von {praesenz_score} ausgewählt haben, "
-        "sollten Sie zunächst prüfen, inwiefern Präsenzanforderungen organisatorisch reduziert, "
-        "delegiert oder digitalisiert werden können, bevor eine hohe Homeoffice-Quote umgesetzt wird."
+        "sollten Sie prüfen, ob Präsenzanforderungen reduziert oder digitalisiert werden können."
     )
 
-# -------------------------------------------------------
-# Handlungsempfehlungen (bei Scores 1–2)
-# -------------------------------------------------------
-
+# Handlungsempfehlungen
 st.subheader("Handlungsempfehlungen")
 
-# Empfehlungen
 empfehlungen = {
     "Büroflächenreduktion": {
         "problem": "Kaum Hotdesking, Präsenzstruktur stark ausgeprägt.",
         "maßnahmen": [
             "Buchungssystem oder einfache Desksharing-Regeln einführen.",
-            "Meetingräume flexibilisieren → Fokusräume schaffen, Doppelbelegungen reduzieren."
+            "Meetingräume flexibilisieren → Fokusräume schaffen."
         ]
     },
     "CO₂-Einsparung": {
         "problem": "Geringe Nachhaltigkeitseffekte.",
         "maßnahmen": [
-            "Anreize schaffen: JobRad, ÖPNV-Zuschuss, Ladeinfrastruktur.",
-            "Gebäudebetrieb an Belegung koppeln (Heizung/Beleuchtung nur in genutzten Zonen)."
+            "JobRad, ÖPNV-Zuschuss oder Ladeinfrastruktur anbieten.",
+            "Gebäudebetrieb an Belegung koppeln."
         ]
     },
     "Mitarbeiterakzeptanz": {
         "problem": "Geringe Nutzung oder Skepsis gegenüber Homeoffice.",
         "maßnahmen": [
-            "Ursachenanalyse: anonyme Umfrage oder Workshop.",
-            "Einstieg über „sanftes Hybrid“ (z. B. 1–2 freiwillige HO‑Tage).",
-            "Erfolgsgeschichten kommunizieren („Best Practices aus anderen Teams“)."
+            "Ursachenanalyse (Umfrage/Workshop).",
+            "Sanftes Hybridmodell einführen.",
+            "Best Practices aus Teams teilen."
         ]
     },
     "Team-/Führungskultur": {
-        "problem": "Skepsis, wenig Remote-Kompetenz, Micromanagement.",
+        "problem": "Skepsis, wenig Remote-Kompetenz.",
         "maßnahmen": [
-            "Führungskräftetraining zum Thema „Führen auf Distanz“.",
-            "Erwartungstransparenz: Output statt Präsenz messen.",
-            "Team-Working-Agreements erstellen (Kommunikationsregeln, Kernzeiten, Meetingformen)."
+            "Training für Führen auf Distanz.",
+            "Output statt Präsenz messen.",
+            "Team-Working-Agreements definieren."
         ]
     },
     "Aufgaben-/Persönlichkeitsfit": {
-        "problem": "Tätigkeiten oder Mitarbeitende kaum remote-tauglich.",
+        "problem": "Aufgaben wenig remote-tauglich.",
         "maßnahmen": [
-            "Schulungen in Selbstorganisation, Priorisierung.",
-            "Einführung klarer täglicher Strukturen (Check-in, Tagesziele)."
+            "Schulungen in Selbstorganisation.",
+            "Tägliche Struktur (Check-in, Tagesziele)."
         ]
     },
     "Produktivitätseffekte": {
         "problem": "Homeoffice senkt Produktivität.",
         "maßnahmen": [
-            "Ursachen messen: Ablenkung? Technik? Kommunikation?",
-            "Fokusphasen einführen (z. B. „No-Meeting-Wednesday“)."
+            "Ursachenanalyse (Ablenkung, Technik, Kommunikation).",
+            "Fokusphasen wie 'No-Meeting-Wednesday'."
         ]
     },
     "Work-Life-Balance": {
-        "problem": "Mitarbeitende haben durch HO eher Nachteile.",
+        "problem": "Homeoffice wirkt negativ.",
         "maßnahmen": [
-            "Klare Regeln zur Erreichbarkeit einführen (z. B. keine Mails nach 18 Uhr).",
-            "Schulung zu Selbstorganisation & Pausenmanagement anbieten.",
-            "Digitale Pausen‑Reminder (Teams/Outlook)."
+            "Regeln zur Erreichbarkeit.",
+            "Schulung zu Pausenmanagement.",
+            "Digitale Pausenreminder."
         ]
     }
 }
 
-# drei Kategorien werden ausgeschlossen:
-kritische_kategorien_ausgeschlossen = {
-    "IT-Infrastruktur",
-    "Präsenznotwendigkeit",
-    "Pendelaufwand"   # <--- NEU hinzugefügt
-}
+kritische_kategorien_ausgeschlossen = {"IT-Infrastruktur", "Präsenznotwendigkeit", "Pendelaufwand"}
 
 kritische_kriterien = [
     k for k, s in scores.items()
@@ -285,13 +289,13 @@ if len(kritische_kriterien) == 0:
 else:
     for kriterium in kritische_kriterien:
         st.markdown(f"### {kriterium}")
-        info = empfehlungen.get(kriterium)
+        info = empfehlungen.get(kriterium, None)
         if info:
             st.markdown(f"**Problem:** {info['problem']}")
             for punkt in info["maßnahmen"]:
                 st.markdown(f"- {punkt}")
         else:
-            st.markdown("_Aktuell keine spezifischen Empfehlungen für dieses Kriterium hinterlegt._")
+            st.markdown("_Aktuell keine spezifischen Empfehlungen hinterlegt._")
         st.markdown("---")
 
 # Breakdown-Tabelle
