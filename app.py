@@ -7,6 +7,14 @@ from supabase import create_client
 # --- Seite konfigurieren ---
 st.set_page_config(page_title="Hybrid-Scoring-Tool", layout="wide", initial_sidebar_state="expanded")
 
+# --- Session-Keys VOR jeglichem Zugriff initialisieren ---
+if "scroll_to_top" not in st.session_state:
+    st.session_state.scroll_to_top = False
+if "weights_locked" not in st.session_state:
+    st.session_state.weights_locked = False  # wird nach Speichern True
+
+# --- Nach einem Speichervorgang einmalig smooth scrollen ---
+# (Zur "Bewertung"-Sektion; falls Anker noch nicht da, scrolle nach ganz oben)
 if st.session_state.scroll_to_top:
     st.markdown(
         """
