@@ -1,8 +1,21 @@
 import streamlit as st
 import pandas as pd
+import json
+from datetime import datetime
+from supabase import create_client
 
-st.set_page_config(page_title="Hybrid-Scoring-Tool", layout="wide")
+# --- Streamlit: Seite zuerst konfigurieren (Best Practice ganz am Anfang) ---
+st.set_page_config(page_title="Hybrid-Scoring-Tool", layout="wide", initial_sidebar_state="collapsed")
 
+# --- Supabase initialisieren ---
+supabase = create_client(
+    st.secrets["supabase"]["url"],
+    st.secrets["supabase"]["anon_key"]
+)
+
+# -------------------------------------------------------
+# CSS (responsive & theme-aware)
+# -------------------------------------------------------
 st.markdown(
     """
     <style>
@@ -27,7 +40,7 @@ st.markdown(
       margin: 14px 0 22px 0;
     }
 
-    /* Bessere Abstände & Einrückungen */
+    /* Abstände & Einrückungen */
     .intro-step { margin-bottom: .7rem; line-height: 1.55; }
     .intro-sub  { margin-left: 1.25rem; margin-top: .15rem; margin-bottom: .45rem; opacity: .95; }
     .intro-section-title { font-weight: 600; margin: .3rem 0 .6rem 0; font-size: 1.05rem; }
@@ -40,36 +53,6 @@ st.markdown(
       .intro-step { margin-bottom: .55rem; line-height: 1.5; font-size: .98rem; }
       .intro-sub  { margin-left: .9rem; margin-bottom: .35rem; font-size: .95rem; }
       .intro-section-title { font-size: 1rem; margin-bottom: .5rem; }
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-# -------------------------------------------------------
-# Styling
-# -------------------------------------------------------
-st.markdown(
-    """
-    <style>
-    h1 {
-        font-size: 2.2rem !important;
-        margin-bottom: 0.2rem;
-    }
-    .subtitle {
-        font-size: 1.1rem;
-        color: #555;
-        margin-bottom: 1.5rem;
-    }
-    .instruction-box {
-        background-color: #f5f7fa;
-        padding: 1rem 1.5rem;
-        border-radius: 8px;
-        border-left: 5px solid #4a7aff;
-        margin-top: 1rem;
-        margin-bottom: 2rem;
-        font-size: 0.95rem;
-        line-height: 1.5;
     }
     </style>
     """,
@@ -100,6 +83,7 @@ with st.expander("Kurzanleitung", expanded=True):
           <div class='intro-sub'>➜ Die Frage und die Skalenbeschreibung helfen Ihnen bei der Einordnung.</div>
 
           <div class='intro-step'>4️⃣ <b>Ergebnis:</b> Sie erhalten einen <b>Gesamtscore</b> und eine <b>konkrete Homeoffice-Empfehlung</b>.</div>
+        </div>
         """,
         unsafe_allow_html=True
     )
@@ -128,7 +112,6 @@ standardgewichte = {
     "Präsenznotwendigkeit": 0.085,
     "IT-Infrastruktur": 0.05
 }
-
 kriterien = list(standardgewichte.keys())
 
 # -------------------------------------------------------
@@ -153,16 +136,10 @@ kriterien_beschreibungen = {
 if startmodus == "Eigene Gewichtung vergeben":
 
     st.subheader("Eigene Gewichtung festlegen")
-
     st.write("Passen Sie die Bedeutung der einzelnen Kriterien an Ihre individuelle Situation an.")
-
-    st.caption("➜ Je höher der Regler steht, desto stärker fließt das Kriterium später in die Empfehlung ein. ")
+    st.caption("➜ Je höher der Regler steht, desto stärker fließt das Kriterium später in die Empfehlung ein. Die Summe wird automatisch auf 100 % normiert.")
 
     slider_raw = {}
-
-    st.header("Gewichtungen festlegen")
-    slider_raw = {}
-
     for k in kriterien:
         slider_raw[k] = st.slider(
             f"{k} – Wichtigkeit",
@@ -182,22 +159,72 @@ if startmodus == "Eigene Gewichtung vergeben":
 else:
     gewichte = standardgewichte.copy()
 
+# -------------------------------------------------------
+# Speicher-Funktion
+# -------------------------------------------------------
+def save_weights_to_supabase(weights, industry, position):
+    payload = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "weights_json": json.dumps(weights),
+        "industry": industry if industry != "keine Angabe" else None,
+        "position": position if position != "keine Angabe" else None,
+    }
+    try:
+        response = supabase.table("weights").insert(payload).execute()
+        return response
+    except Exception as e:
+        return {"error": str(e)}
 
 # -------------------------------------------------------
 # Gewichtungsübersicht als Tabelle
 # -------------------------------------------------------
 st.subheader("Gewichtungsübersicht (Standard vs. Neu)")
-
 gewicht_tabelle = pd.DataFrame({
     "Kriterium": kriterien,
     "Standardgewicht (%)": [standardgewichte[k] * 100 for k in kriterien],
     "Neue Gewichtung (%)": [gewichte[k] * 100 for k in kriterien]
 })
-
 gewicht_tabelle["Standardgewicht (%)"] = gewicht_tabelle["Standardgewicht (%)"].map(lambda x: f"{x:.1f}%")
 gewicht_tabelle["Neue Gewichtung (%)"] = gewicht_tabelle["Neue Gewichtung (%)"].map(lambda x: f"{x:.1f}%")
-
 st.dataframe(gewicht_tabelle, use_container_width=True)
+
+# -------------------------------------------------------
+# (NEU) Optionale Angaben & Speichern – nur bei "Eigene Gewichtung"
+# -------------------------------------------------------
+if startmodus == "Eigene Gewichtung vergeben":
+    st.subheader("Optionale Angaben (anonym)")
+    industry = st.selectbox(
+        "Branche",
+        [
+            "keine Angabe",
+            "Produktion",
+            "Dienstleistung",
+            "Handel",
+            "IT/Software",
+            "Öffentlicher Sektor",
+            "Sonstiges"
+        ]
+    )
+    position = st.selectbox(
+        "Position im Unternehmen",
+        [
+            "keine Angabe",
+            "Führung / Management",
+            "Kaufmännische / Administrative Rolle",
+            "Operative Rolle",
+            "Fachkraft",
+            "Ausbildung / Studium"
+        ]
+    )
+
+    st.subheader("📤 Gewichtung anonym speichern")
+    st.caption("Mit Ihrer Rückmeldung helfen Sie uns, die Standardgewichtung fortlaufend zu kalibrieren. Vielen Dank!")
+    if st.button("Gewichtung senden"):
+        res = save_weights_to_supabase(gewichte, industry, position)
+        if isinstance(res, dict) and "error" in res:
+            st.error(f"Fehler beim Speichern: {res['error']}")
+        else:
+            st.success("Vielen Dank für Ihre Teilnahme, die Gewichtung wurde erfolgreich gespeichert!")
 
 # -------------------------------------------------------
 # Fragen
@@ -301,12 +328,11 @@ def get_empfehlung(score):
     elif score < 4.5: return "3 Tage pro Woche"
     else: return "4–5 Tage pro Woche"
 
-scores = {}
-gesamtscore = 0
-
 st.subheader("Bewertung")
 st.caption("➜ Bewerten Sie sich anhand der Kriterien von 1 bis 5. Die Beschreibung hilft Ihnen bei der Einordnung.")
 
+scores = {}
+gesamtscore = 0.0
 for kriterium, gewicht in gewichte.items():
     st.markdown(f"### {kriterium}")
     st.markdown(f"**Frage:** {fragen[kriterium]}")
@@ -335,7 +361,6 @@ col2.metric("Homeoffice-Empfehlung", get_empfehlung(gesamtscore))
 # Detailanalyse – mit neuen Gewichten
 # -------------------------------------------------------
 st.subheader("Detail-Analyse")
-
 df_data = [
     {
         "Kriterium": k,
@@ -345,9 +370,7 @@ df_data = [
     }
     for k in scores
 ]
-
 st.dataframe(pd.DataFrame(df_data), use_container_width=True)
-
 
 with st.expander("ℹ️ Mehr erfahren – So arbeitet das Tool"):
     st.markdown("""
@@ -360,5 +383,6 @@ with st.expander("ℹ️ Mehr erfahren – So arbeitet das Tool"):
     **Kann ich später noch etwas ändern?**  
     Ja. Gewichtungen und Bewertungen können jederzeit angepasst werden – das Ergebnis aktualisiert sich automatisch.
     """)
+
 st.markdown("---")
 st.markdown("*DHBW Lörrach | P.Gizewski, L. Krämer, L. Müller | © 2026*")
