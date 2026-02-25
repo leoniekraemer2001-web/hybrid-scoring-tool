@@ -5,7 +5,7 @@ from datetime import datetime
 from supabase import create_client
 
 # --- Seite konfigurieren ---
-st.set_page_config(page_title="Hybrid-Scoring-Tool", layout="wide", initial_sidebar_state="collapsed")
+st.set_page_config(page_title="Hybrid-Scoring-Tool", layout="wide", initial_sidebar_state="expanded")
 
 # --- Supabase initialisieren ---
 supabase = create_client(
@@ -215,7 +215,7 @@ if startmodus == "Eigene Gewichtung vergeben" and not st.session_state.weights_l
 if startmodus == "Eigene Gewichtung vergeben" and st.session_state.weights_locked:
     if st.button("Gewichtung erneut anpassen"):
         st.session_state.weights_locked = False
-        st.experimental_rerun()
+        st.rerun()
 
 # -------------------------------------------------------
 # Fragen
