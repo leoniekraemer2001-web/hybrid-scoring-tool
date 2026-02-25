@@ -307,7 +307,10 @@ Score 5: Exzellent
 # -------------------------------------------------------
 # Bewertung (Schritt 2)
 # -------------------------------------------------------
-def get_empfehlung(score):
+st.subheader("Bewertung")
+st.caption("➜ Bewerten Sie sich anhand der Kriterien von 1 bis 5. Die Beschreibung hilft Ihnen bei der Einordnung.")
+
+def get_empfehlung(score: float) -> str:
     if score < 1.4:
         return "0 Tage pro Woche"
     elif score < 2.5:
@@ -318,9 +321,6 @@ def get_empfehlung(score):
         return "3 Tage pro Woche"
     else:
         return "4–5 Tage pro Woche"
-
-#st.subheader("Bewertung")
-st.caption("➜ Bewerten Sie sich anhand der Kriterien von 1 bis 5. Die Beschreibung hilft Ihnen bei der Einordnung.")
 
 scores = {}
 gesamtscore = 0.0
