@@ -7,6 +7,19 @@ from supabase import create_client
 # --- Seite konfigurieren ---
 st.set_page_config(page_title="Hybrid-Scoring-Tool", layout="wide", initial_sidebar_state="expanded")
 
+if st.session_state.scroll_to_top:
+    st.markdown(
+        """
+        <script>
+        const anchor = document.getElementById("bewertung");
+        if (anchor) { anchor.scrollIntoView({behavior: 'smooth', block: 'start'}); }
+        else { window.scrollTo({top: 0, left: 0, behavior: 'smooth'}); }
+        </script>
+        """,
+        unsafe_allow_html=True
+    )
+    st.session_state.scroll_to_top = False
+
 # --- Supabase initialisieren ---
 supabase = create_client(
     st.secrets["supabase"]["url"],
@@ -312,6 +325,9 @@ Score 5: Exzellent
 # -------------------------------------------------------
 # Bewertung (Schritt 2)
 # -------------------------------------------------------
+st.markdown("<div id='bewertung'></div>", unsafe_allow_html=True)
+st.subheader("Bewertung")
+
 def get_empfehlung(score):
     if score < 1.4: return "0 Tage pro Woche"
     elif score < 2.5: return "1 Tag pro Woche"
