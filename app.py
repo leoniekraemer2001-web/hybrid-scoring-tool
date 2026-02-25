@@ -7,34 +7,13 @@ from supabase import create_client
 # --- Seite konfigurieren ---
 st.set_page_config(page_title="Hybrid-Scoring-Tool", layout="wide", initial_sidebar_state="expanded")
 
-# --- Session-Keys VOR jeglichem Zugriff initialisieren ---
-if "scroll_to_top" not in st.session_state:
-    st.session_state.scroll_to_top = False
-if "weights_locked" not in st.session_state:
-    st.session_state.weights_locked = False  # wird nach Speichern True
-
-# --- Nach einem Speichervorgang einmalig smooth scrollen ---
-# (Zur "Bewertung"-Sektion; falls Anker noch nicht da, scrolle nach ganz oben)
-if st.session_state.scroll_to_top:
-    st.markdown(
-        """
-        <script>
-        const anchor = document.getElementById("bewertung");
-        if (anchor) { anchor.scrollIntoView({behavior: 'smooth', block: 'start'}); }
-        else { window.scrollTo({top: 0, left: 0, behavior: 'smooth'}); }
-        </script>
-        """,
-        unsafe_allow_html=True
-    )
-    st.session_state.scroll_to_top = False
-
 # --- Supabase initialisieren ---
 supabase = create_client(
     st.secrets["supabase"]["url"],
     st.secrets["supabase"]["anon_key"]
 )
 
-# --- Session-State: UI-Steuerung für Schritt 1 (Gewichtung) ---  # (NEU)
+# --- Session-State: UI-Steuerung für Schritt 1 (Gewichtung) ---
 if "weights_locked" not in st.session_state:
     st.session_state.weights_locked = False  # Nach erfolgreichem Speichern auf True setzen
 
@@ -99,7 +78,7 @@ startmodus = st.sidebar.radio(
     ["Standardgewichtung verwenden", "Eigene Gewichtung vergeben"]
 )
 
-# Wenn der Nutzer auf Standardgewichtung umschaltet, den Lock zurücksetzen, damit keine „versteckte“ UI hängen bleibt  # (NEU)
+# Wechsel auf Standardgewichtung → Lock zurücksetzen
 if startmodus != "Eigene Gewichtung vergeben" and st.session_state.weights_locked:
     st.session_state.weights_locked = False
 
@@ -163,10 +142,7 @@ if startmodus == "Eigene Gewichtung vergeben":
             gewichte = {k: slider_raw[k] / total for k in kriterien}
     else:
         # Gewichtungen sind gesperrt → nur Info anzeigen
-        st.info("✅ Ihre Gewichtung wurde gespeichert. "
-                "Sie können unten mit der Bewertung fortfahren.")
-        # Wir benötigen dennoch die zuletzt verwendeten Gewichte zur Anzeige/Weiterrechnung:
-        # Falls keine Gewichte im Session State liegen, fallback auf Standard (sollte aber gesetzt sein)
+        st.info("✅ Ihre Gewichtung wurde gespeichert. Sie können unten mit der Bewertung fortfahren.")
         if "last_weights" in st.session_state:
             gewichte = st.session_state.last_weights
         else:
@@ -226,13 +202,11 @@ if startmodus == "Eigene Gewichtung vergeben" and not st.session_state.weights_l
             st.error(f"Fehler beim Speichern: {res['error']}")
         else:
             st.success("Gewichtung erfolgreich gespeichert! 🙌")
-            # Sperren, damit der gesamte Gewichtungs-Abschnitt verschwindet  
             st.session_state.weights_locked = True
-            # Letzte Gewichte für spätere Nutzung im State behalten           
             st.session_state.last_weights = gewichte
-            st.rerun()  # UI sofort aktualisieren               
+            st.rerun() 
 
-# Nach dem Speichern (und nur bei „Eigene Gewichtung“) kleine Bearbeiten-Option anbieten 
+# Nach dem Speichern: Bearbeiten-Option
 if startmodus == "Eigene Gewichtung vergeben" and st.session_state.weights_locked:
     if st.button("Gewichtung erneut anpassen"):
         st.session_state.weights_locked = False
@@ -333,17 +307,19 @@ Score 5: Exzellent
 # -------------------------------------------------------
 # Bewertung (Schritt 2)
 # -------------------------------------------------------
-st.markdown("<div id='bewertung'></div>", unsafe_allow_html=True)
-st.subheader("Bewertung")
-
 def get_empfehlung(score):
-    if score < 1.4: return "0 Tage pro Woche"
-    elif score < 2.5: return "1 Tag pro Woche"
-    elif score < 3.5: return "2 Tage pro Woche"
-    elif score < 4.5: return "3 Tage pro Woche"
-    else: return "4–5 Tage pro Woche"
+    if score < 1.4:
+        return "0 Tage pro Woche"
+    elif score < 2.5:
+        return "1 Tag pro Woche"
+    elif score < 3.5:
+        return "2 Tage pro Woche"
+    elif score < 4.5:
+        return "3 Tage pro Woche"
+    else:
+        return "4–5 Tage pro Woche"
 
-st.subheader("Bewertung")
+#st.subheader("Bewertung")
 st.caption("➜ Bewerten Sie sich anhand der Kriterien von 1 bis 5. Die Beschreibung hilft Ihnen bei der Einordnung.")
 
 scores = {}
