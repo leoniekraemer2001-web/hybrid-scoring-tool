@@ -209,7 +209,7 @@ if startmodus == "Eigene Gewichtung vergeben" and not st.session_state.weights_l
             st.session_state.weights_locked = True
             # Letzte Gewichte für spätere Nutzung im State behalten           
             st.session_state.last_weights = gewichte
-            st.experimental_rerun()  # UI sofort aktualisieren               
+            st.rerun()  # UI sofort aktualisieren               
 
 # Nach dem Speichern (und nur bei „Eigene Gewichtung“) kleine Bearbeiten-Option anbieten 
 if startmodus == "Eigene Gewichtung vergeben" and st.session_state.weights_locked:
