@@ -3,6 +3,49 @@ import pandas as pd
 
 st.set_page_config(page_title="Hybrid-Scoring-Tool", layout="wide")
 
+st.markdown(
+    """
+    <style>
+    /* Theme-aware Farben */
+    :root {
+      --hs-primary: var(--primary-color);
+      --hs-text: var(--text-color);
+      --hs-bg: var(--background-color);
+      --hs-bg-2: var(--secondary-background-color);
+    }
+
+    h1 { font-size: 2.1rem; margin-bottom: 0.3rem; }
+    .subtitle { font-size: 1.05rem; color: var(--hs-text); opacity: .9; }
+
+    /* Instruction box – theme aware + dezente Karte */
+    .instruction-box {
+      background-color: var(--hs-bg-2);
+      color: var(--hs-text);
+      padding: 16px 18px;
+      border-radius: 12px;
+      border-left: 6px solid var(--hs-primary);
+      margin: 14px 0 22px 0;
+    }
+
+    /* Bessere Abstände & Einrückungen */
+    .intro-step { margin-bottom: .7rem; line-height: 1.55; }
+    .intro-sub  { margin-left: 1.25rem; margin-top: .15rem; margin-bottom: .45rem; opacity: .95; }
+    .intro-section-title { font-weight: 600; margin: .3rem 0 .6rem 0; font-size: 1.05rem; }
+
+    /* Mobile Tweaks */
+    @media (max-width: 680px) {
+      h1 { font-size: 1.6rem; }
+      .subtitle { font-size: .95rem; }
+      .instruction-box { padding: 12px 12px; border-left-width: 4px; }
+      .intro-step { margin-bottom: .55rem; line-height: 1.5; font-size: .98rem; }
+      .intro-sub  { margin-left: .9rem; margin-bottom: .35rem; font-size: .95rem; }
+      .intro-section-title { font-size: 1rem; margin-bottom: .5rem; }
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # -------------------------------------------------------
 # Styling
 # -------------------------------------------------------
@@ -42,44 +85,34 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-st.markdown(
-    """
-    <style>
-    .intro-step {
-        margin-bottom: 0.8rem;
-        line-height: 1.5;
-    }
-    .intro-sub {
-        margin-left: 2rem;
-        margin-top: 0.2rem;
-        margin-bottom: 0.6rem;
-        color: #333;
-    }
-    .intro-section-title {
-        font-weight: 600;
-        margin-bottom: 0.6rem;
-        font-size: 1.05rem;
-    }
-    </style>
+with st.expander("Kurzanleitung", expanded=True):
+    st.markdown(
+        """
+        <div class='instruction-box'>
 
-    <div class='instruction-box'>
+          <div class='intro-step'>1️⃣ <b>Start im linken Menü:</b> Wählen Sie, ob Sie die <b>Standardgewichtung</b> nutzen oder eine <b>eigene Gewichtung</b> erstellen möchten.</div>
+          <div class='intro-sub'>➜ In der Gewichtungsübersicht weiter unten sehen Sie alle <b>Standardwerte</b> im Vergleich zu Ihrer <b>neuen Gewichtung</b>.</div>
 
-      <div class='intro-section-title'>Kurzanleitung</div>
+          <div class='intro-step'>2️⃣ <b>Eigene Gewichtung (optional):</b> Vergeben Sie für jedes Kriterium eine <b>Wichtigkeit von 0–100</b>.</div>
+          <div class='intro-sub'>➜ Die Summe wird automatisch auf <b>100 %</b> normiert – Sie können nichts falsch einstellen.</div>
+          <div class='intro-sub'>➜ Wenn Sie die Standardgewichte übernehmen möchten, können Sie direkt zur Bewertung fortfahren.</div>
 
-      <div class='intro-step'>1️⃣ <b>Start im linken Menü:</b> Wählen Sie, ob Sie die <b>Standardgewichtung</b> nutzen oder eine <b>eigene Gewichtung</b> erstellen möchten.</div>
-      <div class='intro-sub'>➜ In der Gewichtungsübersicht weiter unten sehen Sie alle <b>Standardwerte</b> im Vergleich zu Ihrer <b>neuen Gewichtung</b>.</div>
+          <div class='intro-step'>3️⃣ <b>Bewertung:</b> Bewerten Sie jedes Kriterium mit einem <b>Score von 1–5</b>.</div>
+          <div class='intro-sub'>➜ Die Frage und die Skalenbeschreibung helfen Ihnen bei der Einordnung.</div>
 
-      <div class='intro-step'>2️⃣ <b>Eigene Gewichtung (optional):</b> Vergeben Sie für jedes Kriterium eine <b>Wichtigkeit von 0–100</b>.</div>
-      <div class='intro-sub'>➜ Die Summe wird automatisch auf <b>100 %</b> normiert – Sie können nichts falsch einstellen.</div>
-      <div class='intro-sub'>➜ Wenn Sie die Standardgewichte übernehmen möchten, können Sie direkt zur Bewertung fortfahren.</div>
+          <div class='intro-step'>4️⃣ <b>Ergebnis:</b> Sie erhalten einen <b>Gesamtscore</b> und eine <b>konkrete Homeoffice-Empfehlung</b>.</div>
 
-      <div class='intro-step'>3️⃣ <b>Bewertung:</b> Bewerten Sie jedes Kriterium mit einem <b>Score von 1–5</b>.</div>
-      <div class='intro-sub'>➜ Die Frage und die Skalenbeschreibung helfen Ihnen bei der Einordnung.</div>
+          <div class='intro-section-title' style="margin-top: 1rem;">Hinweise</div>
+          <ul style="margin-top: -0.4rem;">
+            <li>Sie können die Gewichtungen jederzeit anpassen; die Auswertung aktualisiert sich automatisch.</li>
+            <li><b>Warum Gewichtungen?</b> Je wichtiger ein Kriterium ist, desto stärker beeinflusst es Ihre Empfehlung (z.&nbsp;B. Pendelaufwand, IT‑Infrastruktur, Teamkultur).</li>
+            <li>Die <b>Detail‑Analyse</b> zeigt Score, verwendetes Gewicht und den Teilwert pro Kriterium.</li>
+          </ul>
 
-      <div class='intro-step'>4️⃣ <b>Ergebnis:</b> Sie erhalten einen <b>Gesamtscore</b> und eine <b>konkrete Homeoffice-Empfehlung</b>.</div>
-    """,
-    unsafe_allow_html=True
-)
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 # -------------------------------------------------------
 # Startoptionen
