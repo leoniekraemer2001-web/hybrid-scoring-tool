@@ -4,7 +4,7 @@ import json
 from datetime import datetime
 from supabase import create_client
 
-# --- Streamlit: Seite zuerst konfigurieren (Best Practice ganz am Anfang) ---
+# --- Seite konfigurieren ---
 st.set_page_config(page_title="Hybrid-Scoring-Tool", layout="wide", initial_sidebar_state="collapsed")
 
 # --- Supabase initialisieren ---
@@ -13,39 +13,23 @@ supabase = create_client(
     st.secrets["supabase"]["anon_key"]
 )
 
+# --- Session-State: UI-Steuerung für Schritt 1 (Gewichtung) ---  # (NEU)
+if "weights_locked" not in st.session_state:
+    st.session_state.weights_locked = False  # Nach erfolgreichem Speichern auf True setzen
+
 # -------------------------------------------------------
 # CSS (responsive & theme-aware)
 # -------------------------------------------------------
 st.markdown(
     """
     <style>
-    /* Theme-aware Farben */
-    :root {
-      --hs-primary: var(--primary-color);
-      --hs-text: var(--text-color);
-      --hs-bg: var(--background-color);
-      --hs-bg-2: var(--secondary-background-color);
-    }
-
+    :root { --hs-primary: var(--primary-color); --hs-text: var(--text-color); --hs-bg: var(--background-color); --hs-bg-2: var(--secondary-background-color); }
     h1 { font-size: 2.1rem; margin-bottom: 0.3rem; }
     .subtitle { font-size: 1.05rem; color: var(--hs-text); opacity: .9; }
-
-    /* Instruction box – theme aware + dezente Karte */
-    .instruction-box {
-      background-color: var(--hs-bg-2);
-      color: var(--hs-text);
-      padding: 16px 18px;
-      border-radius: 12px;
-      border-left: 6px solid var(--hs-primary);
-      margin: 14px 0 22px 0;
-    }
-
-    /* Abstände & Einrückungen */
+    .instruction-box { background-color: var(--hs-bg-2); color: var(--hs-text); padding: 16px 18px; border-radius: 12px; border-left: 6px solid var(--hs-primary); margin: 14px 0 22px 0; }
     .intro-step { margin-bottom: .7rem; line-height: 1.55; }
     .intro-sub  { margin-left: 1.25rem; margin-top: .15rem; margin-bottom: .45rem; opacity: .95; }
     .intro-section-title { font-weight: 600; margin: .3rem 0 .6rem 0; font-size: 1.05rem; }
-
-    /* Mobile Tweaks */
     @media (max-width: 680px) {
       h1 { font-size: 1.6rem; }
       .subtitle { font-size: .95rem; }
@@ -74,15 +58,11 @@ with st.expander("Kurzanleitung", expanded=True):
         <div class='instruction-box'>
           <div class='intro-step'>1️⃣ <b>Start im linken Menü:</b> Wählen Sie, ob Sie die <b>Standardgewichtung</b> nutzen oder eine <b>eigene Gewichtung</b> erstellen möchten.</div>
           <div class='intro-sub'>➜ In der Gewichtungsübersicht weiter unten sehen Sie alle <b>Standardwerte</b> im Vergleich zu Ihrer <b>neuen Gewichtung</b>.</div>
-          <div class='intro-sub'>➜ Wenn Sie die Standardgewichte übernehmen möchten, können Sie Schritt 2 überspringen und direkt mit der Bewertung fortfahren.</div>
-
-          <div class='intro-step'>2️⃣ <b>Eigene Gewichtung (optional):</b> Wählen Sie im Menü links die Option "Eigene Gewichtung vergeben"</b>.</div>
-          <div class='intro-sub'>➜ Vergeben Sie für jedes Kriterium eine <b>Wichtigkeit von 0–100</div>
-          <div class='intro-sub'>➜ Wir freuen uns, wenn Sie Ihre Gewichtung mit uns teilen und so zur Weiterentwicklung unseres Tools beitragen.</div>
-
+          <div class='intro-step'>2️⃣ <b>Eigene Gewichtung (optional):</b> Vergeben Sie für jedes Kriterium eine <b>Wichtigkeit von 0–100</b>.</div>
+          <div class='intro-sub'>➜ Die Summe wird automatisch auf <b>100%</b> normiert – Sie können nichts falsch einstellen.</div>
+          <div class='intro-sub'>➜ Wenn Sie die Standardgewichte übernehmen möchten, können Sie direkt zur Bewertung fortfahren.</div>
           <div class='intro-step'>3️⃣ <b>Bewertung:</b> Bewerten Sie jedes Kriterium mit einem <b>Score von 1–5</b>.</div>
           <div class='intro-sub'>➜ Die Frage und die Skalenbeschreibung helfen Ihnen bei der Einordnung.</div>
-
           <div class='intro-step'>4️⃣ <b>Ergebnis:</b> Sie erhalten einen <b>Gesamtscore</b> und eine <b>konkrete Homeoffice-Empfehlung</b>.</div>
         </div>
         """,
@@ -97,6 +77,10 @@ startmodus = st.sidebar.radio(
     "Wie möchten Sie beginnen?",
     ["Standardgewichtung verwenden", "Eigene Gewichtung vergeben"]
 )
+
+# Wenn der Nutzer auf Standardgewichtung umschaltet, den Lock zurücksetzen, damit keine „versteckte“ UI hängen bleibt  # (NEU)
+if startmodus != "Eigene Gewichtung vergeben" and st.session_state.weights_locked:
+    st.session_state.weights_locked = False
 
 # -------------------------------------------------------
 # Standardgewichte
@@ -132,31 +116,40 @@ kriterien_beschreibungen = {
 }
 
 # -------------------------------------------------------
-# Gewichtung berechnen
+# Gewichtung berechnen (Schritt 1)
 # -------------------------------------------------------
 if startmodus == "Eigene Gewichtung vergeben":
+    if not st.session_state.weights_locked:
+        st.subheader("Eigene Gewichtung festlegen")
+        st.write("Passen Sie die Bedeutung der einzelnen Kriterien an Ihre individuelle Situation an.")
+        st.caption("➜ Je höher der Regler steht, desto stärker fließt das Kriterium später in die Empfehlung ein. Die Summe wird automatisch auf 100% normiert.")
 
-    st.subheader("Eigene Gewichtung festlegen")
-    st.write("Passen Sie die Bedeutung der einzelnen Kriterien an Ihre individuelle Situation an.")
-    st.caption("➜ Je höher der Regler steht, desto stärker fließt das Kriterium später in die Empfehlung ein. Die Summe wird automatisch auf 100% normiert.")
+        slider_raw = {}
+        for k in kriterien:
+            slider_raw[k] = st.slider(
+                f"{k} – Wichtigkeit",
+                min_value=0,
+                max_value=100,
+                value=int(standardgewichte[k] * 100),
+                step=1,
+                help=kriterien_beschreibungen[k]
+            )
 
-    slider_raw = {}
-    for k in kriterien:
-        slider_raw[k] = st.slider(
-            f"{k} – Wichtigkeit",
-            min_value=0,
-            max_value=100,
-            value=int(standardgewichte[k] * 100),
-            step=1,
-            help=kriterien_beschreibungen[k]
-        )
-
-    if sum(slider_raw.values()) == 0:
-        gewichte = {k: 1 / len(kriterien) for k in kriterien}
+        if sum(slider_raw.values()) == 0:
+            gewichte = {k: 1 / len(kriterien) for k in kriterien}
+        else:
+            total = sum(slider_raw.values())
+            gewichte = {k: slider_raw[k] / total for k in kriterien}
     else:
-        total = sum(slider_raw.values())
-        gewichte = {k: slider_raw[k] / total for k in kriterien}
-
+        # Gewichtungen sind gesperrt → nur Info anzeigen
+        st.info("✅ Ihre Gewichtung wurde gespeichert. "
+                "Sie können unten mit der Bewertung fortfahren.")
+        # Wir benötigen dennoch die zuletzt verwendeten Gewichte zur Anzeige/Weiterrechnung:
+        # Falls keine Gewichte im Session State liegen, fallback auf Standard (sollte aber gesetzt sein)
+        if "last_weights" in st.session_state:
+            gewichte = st.session_state.last_weights
+        else:
+            gewichte = standardgewichte.copy()
 else:
     gewichte = standardgewichte.copy()
 
@@ -190,43 +183,39 @@ gewicht_tabelle["Neue Gewichtung (%)"] = gewicht_tabelle["Neue Gewichtung (%)"].
 st.dataframe(gewicht_tabelle, use_container_width=True)
 
 # -------------------------------------------------------
-# (NEU) Optionale Angaben & Speichern – nur bei "Eigene Gewichtung"
+# Optionale Angaben & Speichern – nur bei "Eigene Gewichtung" UND wenn noch nicht gespeichert
 # -------------------------------------------------------
-if startmodus == "Eigene Gewichtung vergeben":
-    st.subheader("Weitere Angaben (anonym)")
+if startmodus == "Eigene Gewichtung vergeben" and not st.session_state.weights_locked:
+    st.subheader("Zusätzliche Angaben (anonym)")
     st.caption("➜ Wir freuen uns, wenn Sie die beiden Angaben ausfüllen und Ihre Gewichtung hier mit uns teilen.")
     industry = st.selectbox(
         "Branche",
-        [
-            "keine Angabe",
-            "Produktion",
-            "Dienstleistung",
-            "Handel",
-            "IT/Software",
-            "Öffentlicher Sektor",
-            "Sonstiges"
-        ]
+        ["keine Angabe", "Produktion", "Dienstleistung", "Handel", "IT/Software", "Öffentlicher Sektor", "Sonstiges"]
     )
     position = st.selectbox(
         "Position im Unternehmen",
-        [
-            "keine Angabe",
-            "Führung / Management",
-            "Kaufmännische / Administrative Rolle",
-            "Operative Rolle",
-            "Fachkraft",
-            "Ausbildung / Studium"
-        ]
+        ["keine Angabe", "Führung / Management", "Kaufmännische / Administrative Rolle", "Operative Rolle", "Fachkraft", "Ausbildung / Studium"]
     )
 
-    st.subheader("Gewichtung anonym speichern und senden")
+    st.subheader("Gewichtung anonym speichern & senden")
     st.caption("Mit Ihrer Rückmeldung helfen Sie uns, die Standardgewichtung fortlaufend zu kalibrieren. Vielen Dank!")
     if st.button("Gewichtung senden"):
         res = save_weights_to_supabase(gewichte, industry, position)
         if isinstance(res, dict) and "error" in res:
             st.error(f"Fehler beim Speichern: {res['error']}")
         else:
-            st.success("Vielen Dank für Ihre Teilnahme. Ihre Gewichtung wurde erfolgreich gespeichert. Sie können nun unten mit Ihrer individuellen Einschätzung fortfahren.")
+            st.success("Gewichtung erfolgreich gespeichert! 🙌")
+            # Sperren, damit der gesamte Gewichtungs-Abschnitt verschwindet  
+            st.session_state.weights_locked = True
+            # Letzte Gewichte für spätere Nutzung im State behalten           
+            st.session_state.last_weights = gewichte
+            st.experimental_rerun()  # UI sofort aktualisieren               
+
+# Nach dem Speichern (und nur bei „Eigene Gewichtung“) kleine Bearbeiten-Option anbieten 
+if startmodus == "Eigene Gewichtung vergeben" and st.session_state.weights_locked:
+    if st.button("Gewichtung erneut anpassen"):
+        st.session_state.weights_locked = False
+        st.experimental_rerun()
 
 # -------------------------------------------------------
 # Fragen
@@ -234,7 +223,7 @@ if startmodus == "Eigene Gewichtung vergeben":
 fragen = {
     "Pendelaufwand": "Wie weit pendelt Ihr Team durchschnittlich?",
     "Büroflächenreduktion": "Wie stark ist Ihr Bereich auf flexible Arbeitsplätze ausgerichtet?",
-    "CO₂-Einsparung": "Wie groß ist die CO₂‑Reduktion durch Homeoffice?",
+    "CO₂-Einsparung": "Wie groß ist die CO₂-Reduktion durch Homeoffice?",
     "Work-Life-Balance": "Wie wirkt sich Homeoffice auf die Work-Life-Balance aus?",
     "Team-/Führungskultur": "Wie reif ist Ihr Team für hybride Zusammenarbeit?",
     "Mitarbeiterakzeptanz": "Wie viele nutzen Homeoffice regelmäßig?",
@@ -321,7 +310,7 @@ Score 5: Exzellent
 }
 
 # -------------------------------------------------------
-# Bewertung
+# Bewertung (Schritt 2)
 # -------------------------------------------------------
 def get_empfehlung(score):
     if score < 1.4: return "0 Tage pro Woche"
@@ -350,7 +339,7 @@ for kriterium, gewicht in gewichte.items():
     st.markdown("---")
 
 # -------------------------------------------------------
-# Ergebnis
+# Ergebnis (Schritt 3)
 # -------------------------------------------------------
 st.subheader("Ihr Ergebnis")
 st.caption("➜ Ihr Gesamtscore und die empfohlene Anzahl an Homeoffice-Tagen basieren auf Ihren Bewertungen und Gewichtungen.")
@@ -360,7 +349,7 @@ col1.metric("Gesamtscore", f"{gesamtscore:.2f}/5.0")
 col2.metric("Homeoffice-Empfehlung", get_empfehlung(gesamtscore))
 
 # -------------------------------------------------------
-# Detailanalyse – mit neuen Gewichten
+# Detailanalyse
 # -------------------------------------------------------
 st.subheader("Detail-Analyse")
 df_data = [
@@ -377,7 +366,7 @@ st.dataframe(pd.DataFrame(df_data), use_container_width=True)
 with st.expander("ℹ️ Mehr erfahren – So arbeitet das Tool"):
     st.markdown("""
     **Wie werden die Gewichte berechnet?**  
-    Ihre 0–100-Eingaben werden automatisch so umgerechnet, dass die Summe exakt 100 % ergibt (Normalisierung).
+    Ihre 0–100-Eingaben werden automatisch so umgerechnet, dass die Summe exakt 100% ergibt (Normalisierung).
 
     **Wie entsteht die Empfehlung?**  
     Für jedes Kriterium wird der Score (1–5) mit dem Gewicht multipliziert. Die Summe aller Teilwerte ergibt den Gesamtscore, der auf eine Empfehlung (Tage/Woche) gemappt wird.
