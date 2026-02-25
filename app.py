@@ -89,7 +89,6 @@ with st.expander("Kurzanleitung", expanded=True):
     st.markdown(
         """
         <div class='instruction-box'>
-
           <div class='intro-step'>1️⃣ <b>Start im linken Menü:</b> Wählen Sie, ob Sie die <b>Standardgewichtung</b> nutzen oder eine <b>eigene Gewichtung</b> erstellen möchten.</div>
           <div class='intro-sub'>➜ In der Gewichtungsübersicht weiter unten sehen Sie alle <b>Standardwerte</b> im Vergleich zu Ihrer <b>neuen Gewichtung</b>.</div>
 
@@ -101,15 +100,6 @@ with st.expander("Kurzanleitung", expanded=True):
           <div class='intro-sub'>➜ Die Frage und die Skalenbeschreibung helfen Ihnen bei der Einordnung.</div>
 
           <div class='intro-step'>4️⃣ <b>Ergebnis:</b> Sie erhalten einen <b>Gesamtscore</b> und eine <b>konkrete Homeoffice-Empfehlung</b>.</div>
-
-          <div class='intro-section-title' style="margin-top: 1rem;">Hinweise</div>
-          <ul style="margin-top: -0.4rem;">
-            <li>Sie können die Gewichtungen jederzeit anpassen; die Auswertung aktualisiert sich automatisch.</li>
-            <li><b>Warum Gewichtungen?</b> Je wichtiger ein Kriterium ist, desto stärker beeinflusst es Ihre Empfehlung (z.&nbsp;B. Pendelaufwand, IT‑Infrastruktur, Teamkultur).</li>
-            <li>Die <b>Detail‑Analyse</b> zeigt Score, verwendetes Gewicht und den Teilwert pro Kriterium.</li>
-          </ul>
-
-        </div>
         """,
         unsafe_allow_html=True
     )
