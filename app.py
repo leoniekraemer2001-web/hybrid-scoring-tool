@@ -74,10 +74,11 @@ with st.expander("Kurzanleitung", expanded=True):
         <div class='instruction-box'>
           <div class='intro-step'>1️⃣ <b>Start im linken Menü:</b> Wählen Sie, ob Sie die <b>Standardgewichtung</b> nutzen oder eine <b>eigene Gewichtung</b> erstellen möchten.</div>
           <div class='intro-sub'>➜ In der Gewichtungsübersicht weiter unten sehen Sie alle <b>Standardwerte</b> im Vergleich zu Ihrer <b>neuen Gewichtung</b>.</div>
+          <div class='intro-sub'>➜ Wenn Sie die Standardgewichte übernehmen möchten, können Sie Schritt 2 überspringen und direkt mit der Bewertung fortfahren.</div>
 
-          <div class='intro-step'>2️⃣ <b>Eigene Gewichtung (optional):</b> Vergeben Sie für jedes Kriterium eine <b>Wichtigkeit von 0–100</b>.</div>
-          <div class='intro-sub'>➜ Die Summe wird automatisch auf <b>100 %</b> normiert – Sie können nichts falsch einstellen.</div>
-          <div class='intro-sub'>➜ Wenn Sie die Standardgewichte übernehmen möchten, können Sie direkt zur Bewertung fortfahren.</div>
+          <div class='intro-step'>2️⃣ <b>Eigene Gewichtung (optional):</b> Wählen Sie im Menü links die Option "Eigene Gewichtung vergeben"</b>.</div>
+          <div class='intro-sub'>➜ Vergeben Sie für jedes Kriterium eine <b>Wichtigkeit von 0–100</div>
+          <div class='intro-sub'>➜ Wir freuen uns, wenn Sie Ihre Gewichtung mit uns teilen und so zur Weiterentwicklung unseres Tools beitragen.</div>
 
           <div class='intro-step'>3️⃣ <b>Bewertung:</b> Bewerten Sie jedes Kriterium mit einem <b>Score von 1–5</b>.</div>
           <div class='intro-sub'>➜ Die Frage und die Skalenbeschreibung helfen Ihnen bei der Einordnung.</div>
@@ -137,7 +138,7 @@ if startmodus == "Eigene Gewichtung vergeben":
 
     st.subheader("Eigene Gewichtung festlegen")
     st.write("Passen Sie die Bedeutung der einzelnen Kriterien an Ihre individuelle Situation an.")
-    st.caption("➜ Je höher der Regler steht, desto stärker fließt das Kriterium später in die Empfehlung ein. Die Summe wird automatisch auf 100 % normiert.")
+    st.caption("➜ Je höher der Regler steht, desto stärker fließt das Kriterium später in die Empfehlung ein. Die Summe wird automatisch auf 100% normiert.")
 
     slider_raw = {}
     for k in kriterien:
@@ -192,7 +193,8 @@ st.dataframe(gewicht_tabelle, use_container_width=True)
 # (NEU) Optionale Angaben & Speichern – nur bei "Eigene Gewichtung"
 # -------------------------------------------------------
 if startmodus == "Eigene Gewichtung vergeben":
-    st.subheader("Optionale Angaben (anonym)")
+    st.subheader("Weitere Angaben (anonym)")
+    st.caption("➜ Wir freuen uns, wenn Sie die beiden Angaben ausfüllen und Ihre Gewichtung hier mit uns teilen.")
     industry = st.selectbox(
         "Branche",
         [
@@ -217,14 +219,14 @@ if startmodus == "Eigene Gewichtung vergeben":
         ]
     )
 
-    st.subheader("📤 Gewichtung anonym speichern")
+    st.subheader("Gewichtung anonym speichern und senden")
     st.caption("Mit Ihrer Rückmeldung helfen Sie uns, die Standardgewichtung fortlaufend zu kalibrieren. Vielen Dank!")
     if st.button("Gewichtung senden"):
         res = save_weights_to_supabase(gewichte, industry, position)
         if isinstance(res, dict) and "error" in res:
             st.error(f"Fehler beim Speichern: {res['error']}")
         else:
-            st.success("Vielen Dank für Ihre Teilnahme, die Gewichtung wurde erfolgreich gespeichert!")
+            st.success("Vielen Dank für Ihre Teilnahme. Ihre Gewichtung wurde erfolgreich gespeichert. Sie können nun unten mit Ihrer individuellen Einschätzung fortfahren.")
 
 # -------------------------------------------------------
 # Fragen
