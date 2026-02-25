@@ -166,10 +166,11 @@ Score 5: Zero-Trust, Enterprise Security, Global Load-Balancing
 
 # Mapping
 def get_empfehlung(score):
-    if score < 2.5: return "0-1 Tage (Minimal)"
-    elif score < 3.5: return "2 Tage (Starter)"
-    elif score < 4.2: return "3 Tage (Ausgereift)"
-    else: return "4-5 Tage (Remote-First)"
+    if score < 1.4: return "0 Tage pro Woche"
+    elif score < 2.5: return "1 Tag pro Woche"
+    elif score < 3.5: return "2 Tage pro Woche"
+    elif score < 4.5: return "3 Tage pro Woche"
+    else: return "4-5 Tage pro Woche"
 
 # Scores
 scores = {}
@@ -181,7 +182,6 @@ for kriterium, gewicht in gewichte.items():
 
     col1, col2 = st.columns([1, 3])
     with col1:
-        # Label entfernen → nur Slider ohne erneute Kriteriumsüberschrift
         score = st.slider(
             label=" ", 
             min_value=1, 
@@ -200,7 +200,7 @@ for kriterium, gewicht in gewichte.items():
 st.header("**Ihr Ergebnis**")
 col1, col2, col3 = st.columns(3)
 col1.metric("Gesamtscore", f"{gesamtscore:.2f}/5.0")
-col2.metric("Policy-Empfehlung", get_empfehlung(gesamtscore))
+col2.metric("Homeoffice Empfehlung", get_empfehlung(gesamtscore))
 
 # Spezifische Warnungen
 it_score = scores.get("IT-Infrastruktur")
