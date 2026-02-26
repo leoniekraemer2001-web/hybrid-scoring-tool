@@ -348,6 +348,102 @@ col1, col2 = st.columns(2)
 col1.metric("Gesamtscore", f"{gesamtscore:.2f}/5.0")
 col2.metric("Homeoffice-Empfehlung", get_empfehlung(gesamtscore))
 
+# Spezifische Warnungen
+it_score = scores.get("IT-Infrastruktur")
+praesenz_score = scores.get("Präsenznotwendigkeit")
+
+if it_score is not None and it_score < 3:
+    st.warning(
+        f"⚠️ Da Sie beim Kriterium **IT-Infrastruktur** nur einen Score von {it_score} ausgewählt haben, "
+        "ist die empfohlene Anzahl an Homeoffice-Tagen nur dann sinnvoll, wenn die technische "
+        "Infrastruktur ausreichend ausgebaut wird."
+    )
+
+if praesenz_score is not None and praesenz_score < 3:
+    st.warning(
+        f"⚠️ Da Sie beim Kriterium **Präsenznotwendigkeit** nur einen Score von {praesenz_score} ausgewählt haben, "
+        "sollten Sie prüfen, ob Präsenzanforderungen reduziert oder digitalisiert werden können."
+    )
+
+# Handlungsempfehlungen
+st.subheader("Handlungsempfehlungen")
+
+empfehlungen = {
+    "Büroflächenreduktion": {
+        "problem": "Kaum Hotdesking, Präsenzstruktur stark ausgeprägt.",
+        "maßnahmen": [
+            "Buchungssystem oder einfache Desksharing-Regeln einführen.",
+            "Meetingräume flexibilisieren → Fokusräume schaffen."
+        ]
+    },
+    "CO₂-Einsparung": {
+        "problem": "Geringe Nachhaltigkeitseffekte.",
+        "maßnahmen": [
+            "JobRad, ÖPNV-Zuschuss oder Ladeinfrastruktur anbieten.",
+            "Gebäudebetrieb an Belegung koppeln."
+        ]
+    },
+    "Mitarbeiterakzeptanz": {
+        "problem": "Geringe Nutzung oder Skepsis gegenüber Homeoffice.",
+        "maßnahmen": [
+            "Ursachenanalyse (Umfrage/Workshop).",
+            "Sanftes Hybridmodell einführen.",
+            "Best Practices aus Teams teilen."
+        ]
+    },
+    "Team-/Führungskultur": {
+        "problem": "Skepsis, wenig Remote-Kompetenz.",
+        "maßnahmen": [
+            "Training für Führen auf Distanz.",
+            "Output statt Präsenz messen.",
+            "Team-Working-Agreements definieren."
+        ]
+    },
+    "Aufgaben-/Persönlichkeitsfit": {
+        "problem": "Aufgaben wenig remote-tauglich.",
+        "maßnahmen": [
+            "Schulungen in Selbstorganisation.",
+            "Tägliche Struktur (Check-in, Tagesziele)."
+        ]
+    },
+    "Produktivitätseffekte": {
+        "problem": "Homeoffice senkt Produktivität.",
+        "maßnahmen": [
+            "Ursachenanalyse (Ablenkung, Technik, Kommunikation).",
+            "Fokusphasen wie 'No-Meeting-Wednesday'."
+        ]
+    },
+    "Work-Life-Balance": {
+        "problem": "Homeoffice wirkt negativ.",
+        "maßnahmen": [
+            "Regeln zur Erreichbarkeit.",
+            "Schulung zu Pausenmanagement.",
+            "Digitale Pausenerinnerer."
+        ]
+    }
+}
+
+kritische_kategorien_ausgeschlossen = {"IT-Infrastruktur", "Präsenznotwendigkeit", "Pendelaufwand"}
+
+kritische_kriterien = [
+    k for k, s in scores.items()
+    if s <= 2 and k not in kritische_kategorien_ausgeschlossen
+]
+
+if len(kritische_kriterien) == 0:
+    st.success("Keine kritischen Bereiche – Für alle relevanten Kriterien liegen solide oder gute Werte vor.")
+else:
+    for kriterium in kritische_kriterien:
+        st.markdown(f"### {kriterium}")
+        info = empfehlungen.get(kriterium, None)
+        if info:
+            st.markdown(f"**Problem:** {info['problem']}")
+            for punkt in info["maßnahmen"]:
+                st.markdown(f"- {punkt}")
+        else:
+            st.markdown("_Aktuell keine spezifischen Empfehlungen hinterlegt._")
+        st.markdown("---")
+
 # -------------------------------------------------------
 # Detailanalyse
 # -------------------------------------------------------
