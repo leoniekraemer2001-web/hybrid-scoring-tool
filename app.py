@@ -201,7 +201,7 @@ if startmodus == "Eigene Gewichtung vergeben" and not st.session_state.weights_l
         if isinstance(res, dict) and "error" in res:
             st.error(f"Fehler beim Speichern: {res['error']}")
         else:
-            st.success("Gewichtung erfolgreich gespeichert! 🙌")
+            st.success("Gewichtung erfolgreich gespeichert!")
             st.session_state.weights_locked = True
             st.session_state.last_weights = gewichte
             st.rerun() 
@@ -216,14 +216,14 @@ if startmodus == "Eigene Gewichtung vergeben" and st.session_state.weights_locke
 # Fragen
 # -------------------------------------------------------
 fragen = {
-    "Pendelaufwand": "Wie weit pendelt Ihr Team durchschnittlich?",
-    "Büroflächenreduktion": "Wie stark ist Ihr Bereich auf flexible Arbeitsplätze ausgerichtet?",
-    "CO₂-Einsparung": "Wie groß ist die CO₂-Reduktion durch Homeoffice?",
-    "Work-Life-Balance": "Wie wirkt sich Homeoffice auf die Work-Life-Balance aus?",
+    "Pendelaufwand": "Wie weit pendelt Ihr Team durchschnittlich (einfache Strecke)?",
+    "Büroflächenreduktion": "Wie stark ist Ihr Bereich aktuell auf flexible Arbeitsplätze ausgerichtet? Hot Desking bedeutet, dass Mitarbeitende keinen festen Schreibtisch haben und täglich einen freien Arbeitsplatz nutzen – für mehr Flexibilität und bessere Flächenauslastung.",
+    "CO₂-Einsparung": "Wie groß ist die CO₂-Reduktion durch einen zusätzlichen Tag Homeoffice?",
+    "Work-Life-Balance": "Wie wirkt sich Homeoffice auf die Work-Life-Balance aus bzw. wie würde sich Homeoffice auswirken?",
     "Team-/Führungskultur": "Wie reif ist Ihr Team für hybride Zusammenarbeit?",
-    "Mitarbeiterakzeptanz": "Wie viele nutzen Homeoffice regelmäßig?",
-    "Aufgaben-/Persönlichkeitsfit": "Wie gut eignen sich Aufgaben für ortsunabhängiges Arbeiten?",
-    "Produktivitätseffekte": "Wie hat sich die Produktivität verändert?",
+    "Mitarbeiterakzeptanz": "Wie viele nutzen Homeoffice regelmäßig – bzw. wie viele würden es Ihrer Einschätzung nach nutzen?",
+    "Aufgaben-/Persönlichkeitsfit": "Wie gut passen die Aufgaben und die persönlichen Arbeitsweisen Ihres Teams zum Arbeiten im Homeoffice?",
+    "Produktivitätseffekte": "Wie hat sich die Produktivität im Homeoffice verändert – bzw. wie würde sie sich Ihrer Einschätzung nach verändern?",
     "Präsenznotwendigkeit": "Wie viele Aufgaben erfordern physische Präsenz?",
     "IT-Infrastruktur": "Wie stabil & leistungsfähig ist die IT?"
 }
@@ -233,74 +233,74 @@ fragen = {
 # -------------------------------------------------------
 beschreibungen = {
     "Pendelaufwand": """
-Score 1: <5 km<br>
-Score 2: 5–12 km<br>
-Score 3: 12–22 km<br>
-Score 4: 22–35 km<br>
-Score 5: >35 km
+Score 1: <5 km Ø Pendelstrecke<br>
+Score 2: 5–12 km Ø Pendelstrecke<br>
+Score 3: 12–22 km Ø Pendelstrecke (DE-Durchschnitt)<br>
+Score 4: 22–35 km Ø Pendelstrecke<br>
+Score 5: >35 km Ø Pendelstrecke
 """,
     "Büroflächenreduktion": """
-Score 1: Einzelbüros<br>
-Score 2: <30% Hotdesking<br>
-Score 3: 30–50% Hotdesking<br>
-Score 4: 50–70% Hotdesking<br>
+Score 1: Traditionelles Büro (Einzelbüros, 100% Auslastung)<br>
+Score 2: Grundlegende Hybrid-Struktur (<30% Hotdesking)<br>
+Score 3: Moderate Adaptivität (30–50% Hotdesking)<br>
+Score 4: Hohe Adaptivität (50–70% Hotdesking)<br>
 Score 5: >70% Hotdesking
 """,
-    "CO₂-Einsparung": """
+    "CO₂-Einsparung je zusätzlichem Homeoffice-Tag pro Person": """
 Score 1: <10 kg CO₂e<br>
-Score 2: 10–25 kg<br>
-Score 3: 25–40 kg<br>
-Score 4: 40–60 kg<br>
-Score 5: >60 kg
+Score 2: 10–25 kg CO₂e<br>
+Score 3: 25–40 kg CO₂e (DE-Durchschnitt)<br>
+Score 4: 40–60 kg CO₂e<br>
+Score 5: >60 kg CO₂e
 """,
-    "Work-Life-Balance": """
-Score 1: Deutlich schlechter<br>
+    "Work-Life-Balance im Homeoffice": """
+Score 1: Deutlich schlechter als im Büro, hoher Konflikt Arbeit-Familie<br>
 Score 2: Etwas schlechter<br>
-Score 3: Neutral<br>
-Score 4: Besser<br>
-Score 5: Sehr gut
+Score 3: Ausgewogen oder leicht besser als Büro<br>
+Score 4: Deutlich besser, gute Zeitgewinne<br>
+Score 5: Sehr gut, flexible Zeitgestaltung, hohe Zufriedenheit 
 """,
     "Team-/Führungskultur": """
-Score 1: Kaum Remote-Erfahrung<br>
-Score 2: Erste Schritte<br>
-Score 3: 1–3 Jahre Erfahrung<br>
-Score 4: Reif<br>
-Score 5: Best Practice
+Score 1: Keine Remote-Erfahrung<br>
+Score 2: Erste Erfahrung (<1 Jahr)<br>
+Score 3: 1–3 Jahre regelmäßige Hybrid-Erfahrung<br>
+Score 4: Reife Hybrid-Kultur (>3 Jahre)<br>
+Score 5: Remote-First
 """,
     "Mitarbeiterakzeptanz": """
-Score 1: <10% nutzen HO<br>
-Score 2: 11–20%<br>
-Score 3: 21–45%<br>
-Score 4: 46–75%<br>
-Score 5: >75%
+Score 1: <10% nutzen Homeoffice<br>
+Score 2: 11–20% nutzen Homeoffice<br>
+Score 3: 21–45% nutzen Homeoffice<br>
+Score 4: 46–75% nutzen Homeoffice<br>
+Score 5: >75% nutzen Homeoffice
 """,
     "Aufgaben-/Persönlichkeitsfit": """
-Score 1: Nicht geeignet<br>
-Score 2: Kaum geeignet<br>
-Score 3: Bedingt geeignet<br>
-Score 4: Gut geeignet<br>
-Score 5: Sehr gut geeignet
+Score 1: Stark team-/ortsgetrieben, niedrige Selbstdisziplin, Ablenkbarkeit<br>
+Score 2: Teilweise ortsabhängig, begrenzte Selbstorganisation<br>
+Score 3: Mischprofil, durchschnittlich organisiert<br>
+Score 4: Autonome Aufgaben, gut strukturiert, selbstgesteuert<br>
+Score 5: Wissensorientiert, hohe Gewissenhaftigkeit, fokussiertes Arbeiten 
 """,
-    "Produktivitätseffekte": """
-Score 1: -10%<br>
+    "Produktivitätseffekte im Homeoffice": """
+Score 1: -10%  (häufige Störungen, schlechte Abstimmung)<br>
 Score 2: -10–0%<br>
-Score 3: 0–10%<br>
+Score 3: 0–10% (Durchschnitt)<br>
 Score 4: +10–20%<br>
-Score 5: >20%
+Score 5: >20% (bessere Konzentration)
 """,
     "Präsenznotwendigkeit": """
-Score 1: >70% Präsenz<br>
-Score 2: 50–70%<br>
-Score 3: 30–50%<br>
-Score 4: 10–30%<br>
-Score 5: <10%
+Score 1: >70% Präsenz erforderlich<br>
+Score 2: 50–70% Präsenz erforderlich<br>
+Score 3: 30–50% Präsenz erforderlich<br>
+Score 4: 10–30% Präsenz erforderlich<br>
+Score 5: <10% Präsenz erforderlich
 """,
     "IT-Infrastruktur": """
-Score 1: Unzuverlässig<br>
-Score 2: Basisniveau<br>
-Score 3: Stabil<br>
-Score 4: Sehr gut<br>
-Score 5: Exzellent
+Score 1: Kein VPN, schlechte Internet, keine Tools<br>
+Score 2: Basis-VPN, Email + File-Sharing<br>
+Score 3: Gutes VPN, MS Teams, stabiles Internet<br>
+Score 4: Enterprise VPN, Cloud-Tools, Cybersecurity<br>
+Score 5: Modernste IT, höchste Geschwindigkeit & Stabilität
 """
 }
 
