@@ -88,12 +88,12 @@ if startmodus != "Eigene Gewichtung vergeben" and st.session_state.weights_locke
 standardgewichte = {
     "Pendelaufwand": 0.2,
     "Büroflächenreduktion": 0.055,
-    "CO₂-Einsparung je zusätzlichem Homeoffice-Tag pro Person": 0.1025,
-    "Work-Life-Balance im Homeoffice": 0.1525,
+    "CO₂-Einsparung": 0.1025,
+    "Work-Life-Balance": 0.1525,
     "Team-/Führungskultur": 0.1175,
     "Mitarbeiterakzeptanz": 0.1,
     "Aufgaben-/Persönlichkeitsfit": 0.04,
-    "Produktivitätseffekte im Homeoffice": 0.0975,
+    "Produktivitätseffekte": 0.0975,
     "Präsenznotwendigkeit": 0.085,
     "IT-Infrastruktur": 0.05
 }
@@ -103,15 +103,15 @@ kriterien = list(standardgewichte.keys())
 # Erklärungen (Tooltips)
 # -------------------------------------------------------
 kriterien_beschreibungen = {
-    "CO₂-Einsparung je zusätzlichem Homeoffice-Tag pro Person": "Reduktion von Treibhausgasen durch weniger Pendelwege und geringeren Büroenergieverbrauch.",
+    "CO₂-Einsparung": "Reduktion von Treibhausgasen durch weniger Pendelwege und geringeren Büroenergieverbrauch.",
     "Pendelaufwand": "Zeitliche, finanzielle und organisatorische Belastung durch den täglichen Arbeitsweg.",
     "Büroflächenreduktion": "Potenzial zur Senkung von Miet-, Energie- und Flächenkosten.",
     "Präsenznotwendigkeit": "Grad der Tätigkeiten, die zwingend physische Anwesenheit erfordern.",
     "Team-/Führungskultur": "Qualität der Zusammenarbeit, Vertrauen, Kommunikation.",
     "IT-Infrastruktur": "Qualität von Hardware, Software, VPN, Netzwerk und Support.",
     "Mitarbeiterakzeptanz": "Bereitschaft und Einstellung der Mitarbeitenden zu Homeoffice.",
-    "Produktivitätseffekte im Homeoffice": "Veränderung der Leistungsfähigkeit im Homeoffice.",
-    "Work-Life-Balance im Homeoffice": "Einfluss auf die Vereinbarkeit von Arbeit und Privatleben.",
+    "Produktivitätseffekte": "Veränderung der Leistungsfähigkeit im Homeoffice.",
+    "Work-Life-Balance": "Einfluss auf die Vereinbarkeit von Arbeit und Privatleben.",
     "Aufgaben-/Persönlichkeitsfit": "Eignung von Aufgaben & individuellen Arbeitsstilen für Homeoffice."
 }
 
@@ -246,14 +246,14 @@ Score 3: Moderate Adaptivität (30–50% Hotdesking)<br>
 Score 4: Hohe Adaptivität (50–70% Hotdesking)<br>
 Score 5: >70% Hotdesking
 """,
-    "CO₂-Einsparung je zusätzlichem Homeoffice-Tag pro Person": """
-Score 1: <10 kg CO₂e<br>
+    "CO₂-Einsparung": """
+Score 1: <10 kg CO₂e Einsparung pro zusätzlichem HO-Tag pro Person<br>
 Score 2: 10–25 kg CO₂e<br>
 Score 3: 25–40 kg CO₂e (DE-Durchschnitt)<br>
 Score 4: 40–60 kg CO₂e<br>
 Score 5: >60 kg CO₂e
 """,
-    "Work-Life-Balance im Homeoffice": """
+    "Work-Life-Balance": """
 Score 1: Deutlich schlechter als im Büro, hoher Konflikt Arbeit-Familie<br>
 Score 2: Etwas schlechter<br>
 Score 3: Ausgewogen oder leicht besser als Büro<br>
@@ -281,7 +281,7 @@ Score 3: Mischprofil, durchschnittlich organisiert<br>
 Score 4: Autonome Aufgaben, gut strukturiert, selbstgesteuert<br>
 Score 5: Wissensorientiert, hohe Gewissenhaftigkeit, fokussiertes Arbeiten 
 """,
-    "Produktivitätseffekte im Homeoffice": """
+    "Produktivitätseffekte": """
 Score 1: -10%  (häufige Störungen, schlechte Abstimmung)<br>
 Score 2: -10–0%<br>
 Score 3: 0–10% (Durchschnitt)<br>
@@ -296,7 +296,7 @@ Score 4: 10–30% Präsenz erforderlich<br>
 Score 5: <10% Präsenz erforderlich
 """,
     "IT-Infrastruktur": """
-Score 1: Kein VPN, schlechte Internet, keine Tools<br>
+Score 1: Kein VPN, schlechtes Internet, keine Tools<br>
 Score 2: Basis-VPN, Email + File-Sharing<br>
 Score 3: Gutes VPN, MS Teams, stabiles Internet<br>
 Score 4: Enterprise VPN, Cloud-Tools, Cybersecurity<br>
