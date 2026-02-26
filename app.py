@@ -88,12 +88,12 @@ if startmodus != "Eigene Gewichtung vergeben" and st.session_state.weights_locke
 standardgewichte = {
     "Pendelaufwand": 0.2,
     "Büroflächenreduktion": 0.055,
-    "CO₂-Einsparung": 0.1025,
-    "Work-Life-Balance": 0.1525,
+    "CO₂-Einsparung je zusätzlichem Homeoffice-Tag pro Person": 0.1025,
+    "Work-Life-Balance im Homeoffice": 0.1525,
     "Team-/Führungskultur": 0.1175,
     "Mitarbeiterakzeptanz": 0.1,
     "Aufgaben-/Persönlichkeitsfit": 0.04,
-    "Produktivitätseffekte": 0.0975,
+    "Produktivitätseffekte im Homeoffice": 0.0975,
     "Präsenznotwendigkeit": 0.085,
     "IT-Infrastruktur": 0.05
 }
@@ -103,15 +103,15 @@ kriterien = list(standardgewichte.keys())
 # Erklärungen (Tooltips)
 # -------------------------------------------------------
 kriterien_beschreibungen = {
-    "CO₂-Einsparung": "Reduktion von Treibhausgasen durch weniger Pendelwege und geringeren Büroenergieverbrauch.",
+    "CO₂-Einsparung je zusätzlichem Homeoffice-Tag pro Person": "Reduktion von Treibhausgasen durch weniger Pendelwege und geringeren Büroenergieverbrauch.",
     "Pendelaufwand": "Zeitliche, finanzielle und organisatorische Belastung durch den täglichen Arbeitsweg.",
     "Büroflächenreduktion": "Potenzial zur Senkung von Miet-, Energie- und Flächenkosten.",
     "Präsenznotwendigkeit": "Grad der Tätigkeiten, die zwingend physische Anwesenheit erfordern.",
     "Team-/Führungskultur": "Qualität der Zusammenarbeit, Vertrauen, Kommunikation.",
     "IT-Infrastruktur": "Qualität von Hardware, Software, VPN, Netzwerk und Support.",
     "Mitarbeiterakzeptanz": "Bereitschaft und Einstellung der Mitarbeitenden zu Homeoffice.",
-    "Produktivitätseffekte": "Veränderung der Leistungsfähigkeit im Homeoffice.",
-    "Work-Life-Balance": "Einfluss auf die Vereinbarkeit von Arbeit und Privatleben.",
+    "Produktivitätseffekte im Homeoffice": "Veränderung der Leistungsfähigkeit im Homeoffice.",
+    "Work-Life-Balance im Homeoffice": "Einfluss auf die Vereinbarkeit von Arbeit und Privatleben.",
     "Aufgaben-/Persönlichkeitsfit": "Eignung von Aufgaben & individuellen Arbeitsstilen für Homeoffice."
 }
 
