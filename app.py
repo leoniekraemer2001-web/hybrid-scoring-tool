@@ -15,8 +15,9 @@ st.set_page_config(
 # -------------------------------------------------------
 st.title("Hybrid-Scoring-Tool")
 st.caption(
-    "Objektive Einschätzung der Eignung von Homeoffice- und Hybridarbeit "
-    "auf Basis zentraler organisationaler Faktoren."
+    "Das Hybrid‑Scoring‑Tool unterstützt Unternehmen, Führungskräfte und HR‑Verantwortliche dabei, "
+    "auf Basis zentraler organisationaler Rahmenbedingungen systematisch und fundiert zu bewerten, "
+    "in welchem Umfang Homeoffice‑ und hybride Arbeitsmodelle sinnvoll umgesetzt werden können."
 )
 
 # -------------------------------------------------------
@@ -104,32 +105,42 @@ if st.session_state.step == 1:
     # Präsenznotwendigkeit
     # -----------------------------
     with col1:
-        praesenz = st.slider(
-            "Präsenznotwendigkeit der Tätigkeiten",
-            1, 5, 3
-        )
+         st.markdown(
+            "**Frage:** Wie stark sind die Tätigkeiten im Arbeitsalltag auf physische "
+            "Anwesenheit angewiesen?"
+         )
 
-        st.markdown(
-            """
+         praesenz = st.slider(
+          "Präsenznotwendigkeit der Tätigkeiten",
+           1, 5, 3
+         )
+
+         st.markdown(
+         """
             <b>Score 1:</b> &gt;70% Face-to-Face oder physische Aufgaben<br>
             <b>Score 2:</b> 50–70% Präsenz erforderlich<br>
             <b>Score 3:</b> 30–50% Präsenz erforderlich (typisch)<br>
             <b>Score 4:</b> 10–30% Präsenz erforderlich<br>
-            <b>Score 5:</b> &lt;10 Präsenz erforderlich
+            <b>Score 5:</b> &lt;10% Präsenz erforderlich
             """,
             unsafe_allow_html=True
-        )
+         )
 
     # -----------------------------
     # IT-Infrastruktur
     # -----------------------------
     with col2:
-        it = st.slider(
+         st.markdown(
+            "**Frage:** Wie gut unterstützt die vorhandene IT-Infrastruktur "
+            "mobiles und digitales Arbeiten?"
+         )
+
+         it = st.slider(
             "IT-Ausstattung & digitale Arbeitsfähigkeit",
             1, 5, 3
-        )
+         )
 
-        st.markdown(
+         st.markdown(
             """
             <b>Score 1:</b> Kein VPN, schlechtes Internet, keine Tools<br>
             <b>Score 2:</b> Basis-VPN, E-Mail + File-Sharing<br>
@@ -138,7 +149,7 @@ if st.session_state.step == 1:
             <b>Score 5:</b> Weltklasse-IT (Zero-Trust, globale Skalierung)
             """,
             unsafe_allow_html=True
-        )
+         )
 
     # -----------------------------
     # Prüfung & Weiter
@@ -279,16 +290,17 @@ elif st.session_state.step == 3:
 
     st.markdown(
         """
-        Bitte bewerten Sie die folgenden Kriterien aus Sicht Ihres Unternehmens.
+        Im letzten Schritt bewerten Sie den **aktuellen durchschnittlichen Zustand**
+        der Rahmenbedingungen in Ihrem Unternehmen – nicht einzelne Ausnahmen oder
+        persönliche Einzelmeinungen.
 
-        Beurteilen Sie dabei den **aktuellen durchschnittlichen Zustand** im Unternehmen –
-        nicht einzelne Ausnahmen oder persönliche Einzelmeinungen.
+        Auf Basis dieser Angaben leitet das Tool eine **Empfehlung für den geeigneten
+        Umfang von Homeoffice‑ und hybrider Arbeit** ab.
 
-        Niedrige Werte stehen für Rahmenbedingungen, unter denen **weniger Homeoffice‑Tage sinnvoll**
-        sind. Hohe Werte stehen für Rahmenbedingungen, unter denen **mehr Homeoffice‑Tage gut
-        umsetzbar** sind.
-        """
+        Bitte bewerten Sie hierzu die folgenden Kriterien aus Sicht Ihres Unternehmens.
+     """
     )
+
 
     gesamtscore = 0.0
     scores = {}
