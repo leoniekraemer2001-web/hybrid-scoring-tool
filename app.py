@@ -451,7 +451,6 @@ elif st.session_state.step == 3:
     # -------------------------------------------------------
     st.subheader("Handlungsempfehlungen")
 
-
     empfehlungen = {
         "Wohlbefinden, Gesundheit & Work-Life-Balance": {
           "problem": "Homeoffice wirkt sich aktuell eher negativ auf Wohlbefinden und Balance aus.",
@@ -484,27 +483,47 @@ elif st.session_state.step == 3:
              "Vertrauensbasierte Zusammenarbeit stärken.",
               "Klare Regeln für hybride Arbeit festlegen."
             ]
+      },
+      "Pendeldauer & Mobilitätsaufwand": {
+         "problem": "hoher Pendelaufwand belastet Mitarbeitende zeitlich, finanziell und gesundheitlich.",
+            "maßnahmen": [
+                "Einführung oder Ausbau eines Shuttle‑Services für Hauptpendelstrecken oder Standorte.",
+                "Bereitstellung von Jobtickets (ÖPNV‑Zuschuss) zur Reduktion von Kosten und Stress.",
+                "Förderung nachhaltiger Mobilität durch JobBike‑ oder Fahrrad‑Leasing‑Modelle.",
+                "Unterstützung von Fahrgemeinschaften (z. B. über interne Plattformen oder Anreizsysteme)."
+             ]
+        }
       }
-    }
 
-    kritische_kriterien = [
-     k for k, s in scores.items()
-        if s <= 2 and k in empfehlungen
-    ]
 
-    if len(kritische_kriterien) == 0:
+
+    kritische_kriterien = []
+
+    for k, s in scores.items():
+        if k != "Pendeldauer & Mobilitätsaufwand" and s <= 2:
+            kritische_kriterien.append(k)
+
+        if k == "Pendeldauer & Mobilitätsaufwand" and s >= 4:
+            kritische_kriterien.append(k)
+
+    # ✅ AUSGABE NUR EINMAL
+    if not kritische_kriterien:
         st.success(
             "✅ Keine kritischen Handlungsfelder identifiziert. "
             "Die wesentlichen Rahmenbedingungen unterstützen hybrides Arbeiten."
         )
     else:
         for kriterium in kritische_kriterien:
-            st.markdown(f"### {kriterium}")
             info = empfehlungen[kriterium]
+            st.markdown(f"### {kriterium}")
             st.markdown(f"**Problem:** {info['problem']}")
-            for punkt in info["maßnahmen"]:
-                st.markdown(f"- {punkt}")
+            for m in info["maßnahmen"]:
+                st.markdown(f"- {m}")
             st.markdown("---")
+
+
+
+
 
     # -------------------------------------------------------
     # Detailanalyse
